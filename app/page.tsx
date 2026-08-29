@@ -307,7 +307,10 @@ export default function Home() {
                       aria-label={`Match score ${Math.round(resolveResult.score * 100)} out of 100; threshold ${Math.round(resolveResult.threshold * 100)} out of 100`}
                       style={{ "--score": resolveResult.score * 100 } as CSSProperties}
                     >
-                      <b>{Math.round(resolveResult.score * 100)}</b><span>/100</span>
+                      <span className="score-value" aria-hidden="true">
+                        <b>{Math.round(resolveResult.score * 100)}</b>
+                        <span>/100</span>
+                      </span>
                     </div>
                     <p>
                       Match threshold: {Math.round(resolveResult.threshold * 100)}/100<br />
