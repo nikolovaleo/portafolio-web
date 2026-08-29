@@ -19,7 +19,7 @@ type ResolveResult = {
   decision: string;
   score: number;
   threshold: number;
-  confidence: number;
+  thresholdGap: number;
   features: Array<{ feature: string; weight: number; match: number; contribution: number }>;
   unifiedRecord: null | Record<string, unknown>;
   meta: { latencyMs: number; model: string; synthetic: boolean };
@@ -301,10 +301,18 @@ export default function Home() {
                 {resolveResult ? (
                   <>
                     <strong className={"decision " + resolveResult.decision.toLowerCase()}>{resolveResult.decision.replace("_", " ")}</strong>
-                    <div className="score-ring" style={{ "--score": resolveResult.score * 100 } as CSSProperties}>
+                    <div
+                      className="score-ring"
+                      role="img"
+                      aria-label={`Match score ${Math.round(resolveResult.score * 100)} out of 100; threshold ${Math.round(resolveResult.threshold * 100)} out of 100`}
+                      style={{ "--score": resolveResult.score * 100 } as CSSProperties}
+                    >
                       <b>{Math.round(resolveResult.score * 100)}</b><span>/100</span>
                     </div>
-                    <p>{Math.round(resolveResult.confidence * 100)}% decision confidence</p>
+                    <p>
+                      Match threshold: {Math.round(resolveResult.threshold * 100)}/100<br />
+                      <strong>{Math.abs(Math.round(resolveResult.thresholdGap * 100))} points {resolveResult.thresholdGap >= 0 ? "above" : "below"} threshold</strong>
+                    </p>
                   </>
                 ) : <p>Run the endpoint to score these records.</p>}
               </div>

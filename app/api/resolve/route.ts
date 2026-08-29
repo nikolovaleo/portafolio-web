@@ -60,12 +60,7 @@ export async function POST(request: Request) {
   );
   const decision =
     score >= threshold ? "MATCH" : score >= threshold - 0.12 ? "REVIEW" : "NO_MATCH";
-  const confidence =
-    decision === "MATCH"
-      ? Math.min(0.99, 0.68 + (score - threshold) * 1.25)
-      : decision === "REVIEW"
-        ? 0.55
-        : Math.min(0.98, 0.66 + (threshold - score) * 0.8);
+  const thresholdGap = Number((score - threshold).toFixed(3));
 
   const best = (a?: string, b?: string) =>
     (a?.trim().length ?? 0) >= (b?.trim().length ?? 0) ? a || b || "unknown" : b || a || "unknown";
@@ -74,7 +69,7 @@ export async function POST(request: Request) {
     decision,
     score,
     threshold,
-    confidence: Number(confidence.toFixed(2)),
+    thresholdGap,
     features,
     unifiedRecord:
       decision === "MATCH"
