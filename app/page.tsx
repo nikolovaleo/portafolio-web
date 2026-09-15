@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 type Asset = {
   hostname: string;
@@ -103,7 +101,7 @@ function VideoSlot({ accent }: { accent: string }) {
     <div className={"video-slot accent-" + accent} aria-label="Project walkthrough video coming soon">
       <span className="video-play" aria-hidden="true">▶</span>
       <div><small>Project walkthrough</small><strong>Video coming soon</strong></div>
-
+      <code>03:00</code>
     </div>
   );
 }
@@ -215,62 +213,65 @@ export default function Home() {
   return (
     <main>
       <nav className="site-nav" aria-label="Primary navigation">
-        <div className="nav-inner"><a className="wordmark" href="#top" aria-label="Leonardo Ureña, home">lu<span>.</span></a>
-        <div className="nav-links"><a href="#labs">Projects</a><a href="#about">About</a><a href="https://github.com/nikolovaleo/portafolio-web" target="_blank" rel="noreferrer">GitHub</a><a href="mailto:nikolovaleo@gmail.com">Contact</a></div></div>
-      </nav>
-      <header className="hero" id="top">
-        <p className="hero-name">Leonardo Ureña</p>
-        <h1>Intelligence.<br /><span>Put to work.</span></h1>
-        <p className="hero-intro">AI engineering. Data science. Thoughtful engineering.
-              From end to end.<br className="desktop-break" /> Thoughtfully built, from the data to the experience.</p>
-        <div className="hero-actions"><a className="primary-link" href="#labs">Explore projects</a><a className="text-link" href="#about">Get to know me <span aria-hidden="true">›</span></a></div>
-
-        <div className="showcase">
-          <Tabs defaultValue="atlas" className="showcase-tabs">
-            <div className="showcase-header"><span className="showcase-label">A closer look.</span><TabsList aria-label="Preview a project"><TabsTrigger value="atlas">Atlas Resolve</TabsTrigger><TabsTrigger value="aegis">Aegis RAG</TabsTrigger><TabsTrigger value="drift">Drift Lab</TabsTrigger></TabsList><span className="sample-label">Synthetic data</span></div>
-            <TabsContent value="atlas" className="showcase-content">
-              <div className="showcase-copy"><span className="product-category">Entity resolution</span><h2>A little clarity.<br />Across every record.</h2><p>Two sources. One identity. See exactly what connects them.</p><a className="text-link" href="#project-1">Explore Atlas Resolve <span aria-hidden="true">›</span></a></div>
-              <div className="identity-preview" aria-label="Current entity resolution preview">
-                <div className="identity-sources"><div><span>Endpoint record</span><strong>{leftAsset.hostname}</strong><small>{leftAsset.ip}</small></div><div><span>Inventory record</span><strong>{rightAsset.hostname}</strong><small>{rightAsset.ip}</small></div></div>
-                <div className="identity-connector" aria-hidden="true"><span /><b>↓</b></div>
-                <div className="identity-result"><div className="preview-score">{resolveResult ? Math.round(resolveResult.score * 100) : '—'}<small>/100</small></div><div><strong>{resolveResult ? resolveResult.decision.replace('_', ' ').toLowerCase() : 'Ready to compare'}</strong><span>Explainable match score</span></div><span className="result-icon" aria-hidden="true">{resolveResult?.decision === 'MATCH' ? '✓' : '↔'}</span></div>
-              </div>
-            </TabsContent>
-            <TabsContent value="aegis" className="showcase-content">
-              <div className="showcase-copy"><span className="product-category">Retrieval & evaluation</span><h2>Every answer.<br />With a trail to follow.</h2><p>A transparent investigation pipeline, from the first question to the final check.</p><a className="text-link" href="#project-2">Explore Aegis RAG <span aria-hidden="true">›</span></a></div>
-              <div className="pipeline-preview">{[['01','Plan','Understand the question'],['02','Retrieve','Find relevant evidence'],['03','Analyze','Connect the findings'],['04','Evaluate','Check the answer']].map(([number,title,detail])=><div key={number}><span>{number}</span><section><strong>{title}</strong><p>{detail}</p></section><b aria-hidden="true">{number === '04' ? '✓' : '↓'}</b></div>)}</div>
-            </TabsContent>
-            <TabsContent value="drift" className="showcase-content">
-              <div className="showcase-copy"><span className="product-category">Model monitoring</span><h2>Models change.<br />Stay one step ahead.</h2><p>Explore the relationship between changing data, decision thresholds, and performance.</p><a className="text-link" href="#project-3">Explore Drift Lab <span aria-hidden="true">›</span></a></div>
-              <div className="drift-preview"><div className="preview-metrics"><div><span>Precision</span><strong>{monitorResult ? (monitorResult.metrics.precision*100).toFixed(1)+'%' : '—'}</strong></div><div><span>Recall</span><strong>{monitorResult ? (monitorResult.metrics.recall*100).toFixed(1)+'%' : '—'}</strong></div></div><div className="preview-chart" aria-label="Current risk score distribution">{monitorResult?.distribution.map(bin=><div key={bin.label} style={{height:Math.max(2,bin.current/Math.max(...monitorResult.distribution.map(x=>x.current),1)*100)+'%'}} title={bin.label+': '+bin.current}/>)}</div><span className="preview-chart-label">Risk-score distribution</span></div>
-            </TabsContent>
-          </Tabs>
+        <a className="wordmark" href="#top" aria-label="Leonardo Ureña, home">LU<span>+</span></a>
+        <div className="nav-links">
+          <a href="#labs">Live labs</a>
+          <a href="#about">Profile</a>
+          <a href="mailto:nikolovaleo@gmail.com">Email</a>
         </div>
-        <p className="hero-footnote">Three personal projects. Real interactions. Original code.</p>
+      </nav>
+
+      <header className="hero" id="top">
+        <div className="hero-noise" aria-hidden="true" />
+        <div className="hero-copy">
+          <p className="kicker"><span /> AI engineering portfolio · live systems</p>
+          <h1>Don’t read about my work. <em>Run it.</em></h1>
+          <p className="hero-intro">
+            Three original, interactive projects spanning data engineering, agentic RAG, model evaluation, and MLOps—each backed by a live endpoint.
+          </p>
+          <div className="hero-actions">
+            <a className="button-link primary-link" href="#labs">Launch the labs <ArrowIcon /></a>
+            <a className="button-link secondary-link" href="https://www.linkedin.com/in/nikolovaleo/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+          </div>
+          <p className="public-note"><span>PUBLIC-SAFE</span> Original personal builds using synthetic records only. No employer code, data, or internal architecture.</p>
+        </div>
+
+        <div className="lab-console" aria-label="Portfolio service status">
+          <div className="console-head"><span /><span /><span /><code>portfolio://runtime</code></div>
+          <div className="console-content">
+            <p><i>01</i><span>Entity resolution API</span><b>ONLINE</b></p>
+            <p><i>02</i><span>Multi-agent RAG</span><b>ONLINE</b></p>
+            <p><i>03</i><span>ML monitor</span><b>ONLINE</b></p>
+          </div>
+          <div className="console-architecture">
+            <span>INPUT</span><i>→</i><span>ENDPOINT</span><i>→</i><span>VISIBLE OUTPUT</span>
+          </div>
+        </div>
       </header>
+
+      <div className="ticker" aria-hidden="true">
+        <div>LIVE ENDPOINTS · SYNTHETIC DATA · AGENTS · RAG · EVALS · ENTITY RESOLUTION · DRIFT MONITORING · LIVE ENDPOINTS · SYNTHETIC DATA · AGENTS · RAG · EVALS ·</div>
+      </div>
+
       <section className="labs" id="labs" aria-labelledby="labs-title">
-        <div className="section-heading"><h2 id="labs-title">Meet the projects.</h2><p>Designed to be explored.<br />Built to show how it works.</p></div>
+        <div className="section-heading">
+          <p className="kicker"><span /> Interactive project lab</p>
+          <h2 id="labs-title">Three projects.<br />Built end to end.</h2>
+          <p>Change the inputs, call the APIs, and inspect the system’s decision—not a screenshot or a GitHub link.</p>
+        </div>
 
         <article className="lab-project accent-cyan" id="project-1">
           <div className="project-intro">
             <div className="project-number">01</div>
             <div>
               <p className="project-overline">Data engineering · Knowledge graphs · Entity resolution</p>
-              <h3>Atlas Resolve</h3><h4>Different records.<br />One clear picture.</h4>
-              <p>Bring fragmented asset records together. Compare the signals, adjust the threshold, and understand every match.</p>
+              <h3>Atlas Resolve</h3>
+              <p>A record-linkage engine that decides whether two noisy asset records describe the same real-world entity, then builds a canonical record with traceable feature contributions.</p>
               <div className="tech-tags"><span>TypeScript</span><span>Weighted similarity</span><span>Graph-ready output</span><span>Explainability</span></div>
             </div>
             <EndpointBadge path="/api/resolve" latency={resolveResult?.meta.latencyMs} />
           </div>
 
-          <div className="product-visual atlas-visual" aria-label="Record comparison overview">
-            <div className="visual-record"><span>Source A</span><strong>{leftAsset.hostname}</strong><small>{leftAsset.owner}</small><code>{leftAsset.ip}</code></div>
-            <div className="visual-match"><span className="visual-match-icon" aria-hidden="true">↔</span><strong>{resolveResult ? Math.round(resolveResult.score*100)+'/100' : '—'}</strong><span>Match score</span></div>
-            <div className="visual-record"><span>Source B</span><strong>{rightAsset.hostname}</strong><small>{rightAsset.owner}</small><code>{rightAsset.ip}</code></div>
-          </div>
-          <Collapsible className="project-explorer">
-          <CollapsibleTrigger className="demo-toggle">Try the live demo <span className="toggle-plus" aria-hidden="true">+</span></CollapsibleTrigger>
-          <CollapsibleContent>
           <div className="demo-shell">
             <div className="demo-toolbar">
               <div>
@@ -339,8 +340,6 @@ export default function Home() {
             <div><span>Production evolution</span><p>Move features to Spark, learn weights from labeled pairs, persist lineage, and emit graph edges for attack-path analytics.</p></div>
             <VideoSlot accent="cyan" />
           </div>
-          </CollapsibleContent>
-          </Collapsible>
         </article>
 
         <article className="lab-project accent-violet" id="project-2">
@@ -348,19 +347,13 @@ export default function Home() {
             <div className="project-number">02</div>
             <div>
               <p className="project-overline">Agentic AI · RAG · Tool orchestration · LLM evaluation</p>
-              <h3>Aegis RAG</h3><h4>Good answers start<br />with good evidence.</h4>
-              <p>Follow the evidence from question to conclusion. Explore retrieval, specialist workflows, and evaluation in a deterministic investigation sandbox.</p>
-              <div className="tech-tags"><span>RAG</span><span>Multi-agent</span><span>Query expansion</span><span>Evaluation rubric</span></div>
+              <h3>Aegis RAG</h3>
+              <p>A multi-agent investigation copilot that retrieves synthetic evidence, delegates analysis to specialists, cites its sources, and passes the answer through an explicit judge.</p>
+              <div className="tech-tags"><span>RAG</span><span>Multi-agent</span><span>Query expansion</span><span>LLM-as-a-Judge</span></div>
             </div>
             <EndpointBadge path="/api/agent" latency={agentResult?.meta.latencyMs} />
           </div>
 
-          <div className="product-visual aegis-visual" aria-label="Investigation workflow">
-            {[['01','Question'],['02','Evidence'],['03','Analysis'],['04','Evaluation']].map(([n,label])=><div key={n}><span>{n}</span><strong>{label}</strong><i aria-hidden="true">{n==='04' ? '✓' : '→'}</i></div>)}
-          </div>
-          <Collapsible className="project-explorer">
-          <CollapsibleTrigger className="demo-toggle">Try the live demo <span className="toggle-plus" aria-hidden="true">+</span></CollapsibleTrigger>
-          <CollapsibleContent>
           <div className="demo-shell agent-shell">
             <div className="agent-input">
               <label htmlFor="agent-question">Ask the synthetic investigation</label>
@@ -423,8 +416,6 @@ export default function Home() {
             <div><span>Production evolution</span><p>Swap in embedding retrieval and tool APIs, isolate permissions per agent, add model-based evals, and log traces for regression testing.</p></div>
             <VideoSlot accent="violet" />
           </div>
-          </CollapsibleContent>
-          </Collapsible>
         </article>
 
         <article className="lab-project accent-lime" id="project-3">
@@ -432,19 +423,13 @@ export default function Home() {
             <div className="project-number">03</div>
             <div>
               <p className="project-overline">Machine learning · MLOps · Drift detection · Explainability</p>
-              <h3>Drift Lab</h3><h4>Know your model.<br />Beyond the accuracy.</h4>
+              <h3>Drift Lab</h3>
               <p>A live model-observability surface for a synthetic email-risk classifier. Stress the input distribution, tune the decision threshold, and watch model quality change.</p>
               <div className="tech-tags"><span>PSI drift</span><span>Confusion matrix</span><span>Threshold tuning</span><span>Feature impact</span></div>
             </div>
             <EndpointBadge path="/api/monitor" latency={monitorResult?.meta.latencyMs} />
           </div>
 
-          <div className="product-visual monitor-visual" aria-label="Current model performance">
-            {[["Precision",monitorResult?.metrics.precision],["Recall",monitorResult?.metrics.recall],["F1 score",monitorResult?.metrics.f1]].map(([label,value])=><div key={String(label)}><strong>{typeof value==='number' ? (value*100).toFixed(1)+'%' : '—'}</strong><span>{label}</span></div>)}
-          </div>
-          <Collapsible className="project-explorer">
-          <CollapsibleTrigger className="demo-toggle">Try the live demo <span className="toggle-plus" aria-hidden="true">+</span></CollapsibleTrigger>
-          <CollapsibleContent>
           <div className="demo-shell monitor-shell">
             <div className="monitor-controls">
               <div>
@@ -521,16 +506,13 @@ export default function Home() {
             <div><span>Production evolution</span><p>Stream prediction logs, add delayed labels, monitor slices, alert on PSI and performance, and automate champion–challenger evaluation.</p></div>
             <VideoSlot accent="lime" />
           </div>
-          </CollapsibleContent>
-          </Collapsible>
         </article>
       </section>
 
       <section className="profile" id="about" aria-labelledby="profile-title">
         <div>
-          <p className="kicker"><span /> The person behind the projects</p>
-          <h2 id="profile-title">Thoughtful engineering.
-              From end to end.</h2>
+          <p className="kicker"><span /> The engineer behind the lab</p>
+          <h2 id="profile-title">From model idea to observable system.</h2>
         </div>
         <div className="profile-copy">
           <p>I’m a mechatronics engineer with an emphasis in artificial intelligence and computer vision, currently working as a Lead Cybersecurity Data Scientist.</p>
@@ -545,15 +527,14 @@ export default function Home() {
 
       <footer>
         <div>
-          <p className="kicker"><span /> Get in touch</p>
-          <h2>Great work starts
-              with a conversation.</h2>
+          <p className="kicker"><span /> Let’s build something useful</p>
+          <h2>Have a difficult data or AI problem?</h2>
         </div>
         <div className="footer-links">
           <a href="mailto:nikolovaleo@gmail.com">nikolovaleo@gmail.com <ArrowIcon /></a>
           <a href="https://www.linkedin.com/in/nikolovaleo/" target="_blank" rel="noreferrer">LinkedIn <ArrowIcon /></a>
         </div>
-        <p className="copyright">© 2026 Leonardo Ureña Nikolova · AI engineering & data science · Costa Rica</p>
+        <p className="copyright">© 2026 Leonardo Ureña Nikolova · Personal project lab</p>
       </footer>
     </main>
   );
