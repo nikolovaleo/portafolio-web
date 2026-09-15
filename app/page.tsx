@@ -510,7 +510,11 @@ export default function Home() {
       </section>
 
       <section className="profile" id="about" aria-labelledby="profile-title">
-        <div>
+        <figure className="profile-portrait">
+          <img src="/leonardo-urena-portrait.jpg" width="768" height="1376" alt="Leonardo Ureña Nikolova" loading="lazy" />
+          <figcaption><strong>Leonardo Ureña Nikolova</strong><span>San José, Costa Rica</span></figcaption>
+        </figure>
+        <div className="profile-heading">
           <p className="kicker"><span /> The engineer behind the lab</p>
           <h2 id="profile-title">From model idea to observable system.</h2>
         </div>

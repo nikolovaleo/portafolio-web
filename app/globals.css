@@ -364,3 +364,29 @@ footer h2 { max-width: 700px; margin: 24px 0 0; font-size: clamp(2.7rem,5vw,5.5r
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Portrait anchors the profile without competing with the interactive work. */
+.profile {
+  grid-template-columns: minmax(240px, .72fr) minmax(280px, .95fr) minmax(320px, 1fr);
+  gap: clamp(34px, 5vw, 82px);
+  align-items: start;
+}
+.profile-portrait { margin: 0; min-width: 0; }
+.profile-portrait::before { content: ""; width: 42px; height: 3px; margin-bottom: 16px; display: block; background: var(--cyan); }
+.profile-portrait img { width: 100%; aspect-ratio: 4 / 5; display: block; object-fit: cover; object-position: center 26%; filter: saturate(.88) contrast(1.03); }
+.profile-portrait figcaption { padding: 15px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.profile-portrait figcaption strong { font-size: .82rem; letter-spacing: -.01em; }
+.profile-portrait figcaption span { color: var(--muted); font: 500 .61rem/1.4 monospace; text-transform: uppercase; letter-spacing: .08em; }
+.profile-heading { min-width: 0; }
+.profile-copy { min-width: 0; }
+@media (max-width: 1080px) {
+  .profile { grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: 48px; }
+  .profile-portrait { grid-row: 1 / span 2; }
+  .profile-heading { align-self: end; }
+}
+@media (max-width: 760px) {
+  .profile { grid-template-columns: 1fr; gap: 34px; }
+  .profile-portrait { grid-row: auto; width: min(100%, 440px); }
+  .profile-portrait img { aspect-ratio: 4 / 4.8; object-position: center 25%; }
+  .profile h2 { margin-top: 20px; }
+}
