@@ -101,7 +101,7 @@ function VideoSlot({ accent }: { accent: string }) {
     <div className={"video-slot accent-" + accent} aria-label="Project walkthrough video coming soon">
       <span className="video-play" aria-hidden="true">▶</span>
       <div><small>Project walkthrough</small><strong>Video coming soon</strong></div>
-      <code>03:00</code>
+
     </div>
   );
 }
@@ -213,52 +213,24 @@ export default function Home() {
   return (
     <main>
       <nav className="site-nav" aria-label="Primary navigation">
-        <a className="wordmark" href="#top" aria-label="Leonardo Ureña, home">LU<span>+</span></a>
-        <div className="nav-links">
-          <a href="#labs">Live labs</a>
-          <a href="#about">Profile</a>
-          <a href="mailto:nikolovaleo@gmail.com">Email</a>
-        </div>
+        <a className="wordmark" href="#top" aria-label="Leonardo Ureña, home">Leonardo Ureña<span> / </span></a>
+        <div className="nav-links"><a href="#labs">Selected work</a><a href="#about">About</a><a href="mailto:nikolovaleo@gmail.com">Contact ↗</a></div>
       </nav>
-
       <header className="hero" id="top">
-        <div className="hero-noise" aria-hidden="true" />
-        <div className="hero-copy">
-          <p className="kicker"><span /> AI engineering portfolio · live systems</p>
-          <h1>Don’t read about my work. <em>Run it.</em></h1>
-          <p className="hero-intro">
-            Three original, interactive projects spanning data engineering, agentic RAG, model evaluation, and MLOps—each backed by a live endpoint.
-          </p>
-          <div className="hero-actions">
-            <a className="button-link primary-link" href="#labs">Launch the labs <ArrowIcon /></a>
-            <a className="button-link secondary-link" href="https://www.linkedin.com/in/nikolovaleo/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
-          </div>
-          <p className="public-note"><span>PUBLIC-SAFE</span> Original personal builds using synthetic records only. No employer code, data, or internal architecture.</p>
-        </div>
-
-        <div className="lab-console" aria-label="Portfolio service status">
-          <div className="console-head"><span /><span /><span /><code>portfolio://runtime</code></div>
-          <div className="console-content">
-            <p><i>01</i><span>Entity resolution API</span><b>ONLINE</b></p>
-            <p><i>02</i><span>Multi-agent RAG</span><b>ONLINE</b></p>
-            <p><i>03</i><span>ML monitor</span><b>ONLINE</b></p>
-          </div>
-          <div className="console-architecture">
-            <span>INPUT</span><i>→</i><span>ENDPOINT</span><i>→</i><span>VISIBLE OUTPUT</span>
-          </div>
+        <p className="kicker">AI engineer & data scientist <span className="hero-location">San José, Costa Rica</span></p>
+        <h1>Engineering intelligence.<br /><em>Making it useful.</em></h1>
+        <div className="hero-bottom">
+          <p className="hero-caption">Leonardo Ureña Nikolova<br /><span>Lead Cybersecurity Data Scientist</span></p>
+          <div><p className="hero-intro">I build AI and data systems that turn complex information into clear decisions. From the first pipeline to the final interface.</p><a className="text-link" href="#labs">Explore selected work <ArrowIcon /></a></div>
         </div>
       </header>
-
-      <div className="ticker" aria-hidden="true">
-        <div>LIVE ENDPOINTS · SYNTHETIC DATA · AGENTS · RAG · EVALS · ENTITY RESOLUTION · DRIFT MONITORING · LIVE ENDPOINTS · SYNTHETIC DATA · AGENTS · RAG · EVALS ·</div>
+      <div className="project-index" aria-label="Project index">
+        <a href="#project-1"><span>01 / Data engineering</span><strong>Atlas Resolve</strong><p>Finding one identity across fragmented data.</p><ArrowIcon /></a>
+        <a href="#project-2"><span>02 / Applied AI</span><strong>Aegis RAG</strong><p>Tracing an investigation from evidence to answer.</p><ArrowIcon /></a>
+        <a href="#project-3"><span>03 / Machine learning</span><strong>Drift Lab</strong><p>Understanding how a model behaves over time.</p><ArrowIcon /></a>
       </div>
-
       <section className="labs" id="labs" aria-labelledby="labs-title">
-        <div className="section-heading">
-          <p className="kicker"><span /> Interactive project lab</p>
-          <h2 id="labs-title">Three projects.<br />Built end to end.</h2>
-          <p>Change the inputs, call the APIs, and inspect the system’s decision—not a screenshot or a GitHub link.</p>
-        </div>
+        <div className="section-heading"><p className="kicker">Selected work / 01—03</p><h2 id="labs-title">Ideas, implemented.</h2><p>Three independent projects. Editable inputs, working demos, and visible results. All built with synthetic data.</p></div>
 
         <article className="lab-project accent-cyan" id="project-1">
           <div className="project-intro">
@@ -348,8 +320,8 @@ export default function Home() {
             <div>
               <p className="project-overline">Agentic AI · RAG · Tool orchestration · LLM evaluation</p>
               <h3>Aegis RAG</h3>
-              <p>A multi-agent investigation copilot that retrieves synthetic evidence, delegates analysis to specialists, cites its sources, and passes the answer through an explicit judge.</p>
-              <div className="tech-tags"><span>RAG</span><span>Multi-agent</span><span>Query expansion</span><span>LLM-as-a-Judge</span></div>
+              <p>An investigation sandbox exploring retrieval, specialist workflows, and answer evaluation. Follow the evidence through a deterministic pipeline and inspect every step.</p>
+              <div className="tech-tags"><span>RAG</span><span>Multi-agent</span><span>Query expansion</span><span>Evaluation rubric</span></div>
             </div>
             <EndpointBadge path="/api/agent" latency={agentResult?.meta.latencyMs} />
           </div>
@@ -511,8 +483,8 @@ export default function Home() {
 
       <section className="profile" id="about" aria-labelledby="profile-title">
         <div>
-          <p className="kicker"><span /> The engineer behind the lab</p>
-          <h2 id="profile-title">From model idea to observable system.</h2>
+          <p className="kicker"><span /> About / Leonardo</p>
+          <h2 id="profile-title">A systems perspective.</h2>
         </div>
         <div className="profile-copy">
           <p>I’m a mechatronics engineer with an emphasis in artificial intelligence and computer vision, currently working as a Lead Cybersecurity Data Scientist.</p>
@@ -527,14 +499,14 @@ export default function Home() {
 
       <footer>
         <div>
-          <p className="kicker"><span /> Let’s build something useful</p>
-          <h2>Have a difficult data or AI problem?</h2>
+          <p className="kicker"><span /> Get in touch</p>
+          <h2>Let’s talk about your next challenge.</h2>
         </div>
         <div className="footer-links">
           <a href="mailto:nikolovaleo@gmail.com">nikolovaleo@gmail.com <ArrowIcon /></a>
           <a href="https://www.linkedin.com/in/nikolovaleo/" target="_blank" rel="noreferrer">LinkedIn <ArrowIcon /></a>
         </div>
-        <p className="copyright">© 2026 Leonardo Ureña Nikolova · Personal project lab</p>
+        <p className="copyright">© 2026 Leonardo Ureña Nikolova · AI engineering & data science</p>
       </footer>
     </main>
   );
