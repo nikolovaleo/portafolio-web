@@ -1,4 +1,39 @@
-# vinext-starter
+# Leonardo Ureña — Portfolio
+
+Personal portfolio with three original, public-safe interactive projects.
+All demo records are synthetic; none of the project code or data comes from an employer.
+
+## Projects
+
+- **Atlas Graph** — `/projects/atlas`; POST `/api/graph`.
+  Canonical entities, field-level matching evidence, directed attack-path traversal,
+  ranked path risk, and what-if remediation analysis across five synthetic sources.
+- **Aegis Investigator** — `/projects/aegis`; POST `/api/agent`.
+  Bounded state-machine orchestration with four typed tools, hybrid procedure retrieval,
+  cited evidence, deterministic run checks, and a human approval gate. The public
+  runtime is deliberately deterministic and does not claim autonomous LLM reasoning.
+- **Sentinel ModelOps** — `/projects/sentinel`; POST `/api/monitor`.
+  Fixed-seed training and evaluation with fitted logistic models, champion/baseline comparison,
+  threshold analysis, per-example contributions, and population drift monitoring.
+  Contributions explain the fitted linear model and are not causal importance.
+
+The homepage includes the supplied portrait, professional experience, contact links,
+and the original supplied CV as a PDF download. Project pages document baselines,
+measurement definitions, failure modes, and production tradeoffs.
+
+## Verification
+
+After building, run:
+
+```sh
+node --test tests/portfolio.test.mjs tests/resolve-api.test.mjs
+```
+
+These checks exercise the built Worker: page routes, tool execution, approval policy,
+model fitting and drift, attack-path remediation, malformed inputs, and legacy
+entity-resolution regression.
+
+## Runtime foundation
 
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
