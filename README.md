@@ -1,21 +1,40 @@
 # Leonardo Ureña — Portfolio
 
-Personal portfolio with three original, public-safe interactive projects.
+Personal portfolio with five original, public-safe interactive projects.
 All demo records are synthetic; none of the project code or data comes from an employer.
 
 ## Projects
 
+All five labs are usable directly on the homepage (compact tabbed view) and on their
+own project pages (full view with a case study).
+
 - **Atlas Graph** — `/projects/atlas`; POST `/api/graph`.
-  Canonical entities, field-level matching evidence, directed attack-path traversal,
-  ranked path risk, and what-if remediation analysis across five synthetic sources.
+  Entity resolution with a computed, hand-weighted field-match score (MATCH / REVIEW /
+  NO_MATCH), directed attack-path traversal to every critical target, ranked path scores,
+  and what-if remediation analysis across five synthetic sources. The path score is a
+  heuristic product of hand-set edge likelihoods, not a trained model or a probability
+  of compromise.
 - **Aegis Investigator** — `/projects/aegis`; POST `/api/agent`.
-  Bounded state-machine orchestration with four typed tools, hybrid procedure retrieval,
-  cited evidence, deterministic run checks, and a human approval gate. The public
-  runtime is deliberately deterministic and does not claim autonomous LLM reasoning.
+  Bounded state-machine orchestration with four typed tools, keyword and incident-context
+  procedure retrieval, template-based answers where every statement cites a returned
+  record, five deterministic rule checks, and a human approval gate that refuses approval
+  when an evidence or procedure check fails. The public runtime
+  makes no LLM calls; the checks are rule-based assertions, not LLM evaluation.
 - **Sentinel ModelOps** — `/projects/sentinel`; POST `/api/monitor`.
-  Fixed-seed training and evaluation with fitted logistic models, champion/baseline comparison,
-  threshold analysis, per-example contributions, and population drift monitoring.
+  Fixed-seed training (1,400 rows) and evaluation (600 rows) of an L2-regularized logistic
+  regression against a 2-feature baseline, threshold analysis, score distributions,
+  per-example contributions, and PSI drift monitoring.
   Contributions explain the fitted linear model and are not causal importance.
+- **Hermes Triage** — `/projects/hermes`; POST `/api/triage`.
+  Fixed-seed training (1,200 reports) and evaluation (600 reports) of an L2-regularized
+  logistic email-triage classifier against a hand-written keyword and URL heuristic.
+  The baseline is not a trained model. Scores are uncalibrated. Token contributions
+  explain this linear model and are not causal importance.
+- **Prism Bench** — `/projects/prism`; POST `/api/retrieval`.
+  BM25, character-trigram TF-IDF vectors, and hybrid reciprocal rank fusion scored
+  against 28 graded queries on a 32-document synthetic knowledge base. Character n-grams
+  are not neural embeddings. The release gate uses deterministic IR metrics (recall@k,
+  MRR, nDCG, slice regression); there is no LLM judge.
 
 The homepage includes the supplied portrait, professional experience, contact links,
 and the original supplied CV as a PDF download. Project pages document baselines,
@@ -23,14 +42,16 @@ measurement definitions, failure modes, and production tradeoffs.
 
 ## Verification
 
-After building, run:
+After building (`npm run build`, or `npx vinext build` on Windows), run:
 
 ```sh
 node --test tests/portfolio.test.mjs tests/resolve-api.test.mjs
 ```
 
-These checks exercise the built Worker: page routes, tool execution, approval policy,
-model fitting and drift, attack-path remediation, malformed inputs, and legacy
+These checks exercise the built Worker: page routes, homepage lab rendering, tool
+execution and citation grounding, approval policy, model fitting and drift, attack-path
+remediation, computed entity resolution, email triage against a keyword-rule baseline,
+retrieval evaluation with a deterministic release gate, malformed inputs, and legacy
 entity-resolution regression.
 
 ## Runtime foundation
