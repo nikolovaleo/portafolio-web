@@ -30,7 +30,7 @@ export default function Home() {
     <header className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow">Leonardo Ureña Nikolova · AI &amp; Data Science</p>
+          <p className="eyebrow">Leonardo Urena Nikolova · AI &amp; Data Science</p>
           <h1>Intelligent systems.<br /><em>Built end to end.</em></h1>
           <p className="hero-role">Lead Cybersecurity Data Scientist · AI/ML Engineer</p>
           <p className="hero-intro">I turn complex data into production AI systems, from pipelines and models to RAG, agents, evaluation, APIs, and monitoring.</p>
@@ -43,7 +43,7 @@ export default function Home() {
           <ul className="hero-specialties" aria-label="Core specialties">{specialties.map(item => <li key={item}>{item}</li>)}</ul>
         </div>
         <figure className="hero-portrait">
-          <img src="/leonardo-urena-portrait.jpg" width="640" height="1147" alt="Portrait of Leonardo Ureña Nikolova" fetchPriority="high" />
+          <img src="/leonardo-urena-portrait.jpg" width="640" height="1147" alt="Portrait of Leonardo Urena Nikolova" fetchPriority="high" />
           <figcaption><strong>5+ years</strong> across AI, machine learning, data engineering, and research<span>Escazú, Costa Rica</span></figcaption>
         </figure>
       </div>

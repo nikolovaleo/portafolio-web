@@ -1,4 +1,4 @@
-# Leonardo Ureña — Portfolio
+# Leonardo Urena — Portfolio
 
 Personal portfolio with five original, public-safe interactive projects.
 All demo records are synthetic; none of the project code or data comes from an employer.

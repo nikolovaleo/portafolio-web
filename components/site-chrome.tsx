@@ -5,9 +5,9 @@ export function SiteNav() {
     <a className="skip-link" href="#content">Skip to content</a>
     <header className="site-header">
       <nav className="container site-nav" aria-label="Primary">
-        <Link className="wordmark" href="/" aria-label="Leonardo Ureña, home">
+        <Link className="wordmark" href="/" aria-label="Leonardo Urena, home">
           <span className="wordmark-mark" aria-hidden="true">LU<span>+</span></span>
-          <span className="wordmark-name" aria-hidden="true">Leonardo Ureña</span>
+          <span className="wordmark-name" aria-hidden="true">Leonardo Urena</span>
         </Link>
         <div className="nav-links">
           <Link href="/#labs">Labs</Link>
@@ -35,7 +35,7 @@ export function SiteFooter() {
         <li><a href="https://github.com/nikolovaleo" target="_blank" rel="noreferrer"><span>GitHub</span>github.com/nikolovaleo<i aria-hidden="true">↗</i></a></li>
         <li><a href="/Leonardo-Urena-CV.pdf" download><span>Résumé</span>Download PDF<i aria-hidden="true">↓</i></a></li>
       </ul>
-      <p className="copyright">© 2026 Leonardo Ureña Nikolova. The interactive labs are personal projects built on synthetic data; they are not employer systems.</p>
+      <p className="copyright">© 2026 Leonardo Urena Nikolova. The interactive labs are personal projects built on synthetic data; they are not employer systems.</p>
     </div>
   </footer>;
 }

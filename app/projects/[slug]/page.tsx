@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const project = projects.find(p => p.slug === slug);
   if (!project) return { title: "Project not found" };
-  const title = `${project.name} | Leonardo Ureña`;
+  const title = `${project.name} | Leonardo Urena`;
   return { title, description: project.summary, openGraph: { title, description: project.summary, url: `/projects/${project.slug}` } };
 }
 
