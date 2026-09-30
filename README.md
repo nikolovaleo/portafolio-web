@@ -15,11 +15,15 @@ own project pages (full view with a case study).
   heuristic product of hand-set edge likelihoods, not a trained model or a probability
   of compromise.
 - **Aegis Investigator** — `/projects/aegis`; POST `/api/agent`.
-  Bounded state-machine orchestration with four typed tools, keyword and incident-context
-  procedure retrieval, template-based answers where every statement cites a returned
-  record, five deterministic rule checks, and a human approval gate that refuses approval
-  when an evidence or procedure check fails. The public runtime
-  makes no LLM calls; the checks are rule-based assertions, not LLM evaluation.
+  A tool-using LLM agent (`gpt-5.4-mini`, OpenAI Responses API) that plans its own calls to
+  five read-only tools, retrieves a procedure through the Prism BM25 + dense retriever, and
+  answers in a strict JSON schema of cited findings, disposition, and proposed actions.
+  Tool results carry trust labels; the reported email body is attacker-controlled and
+  contains a prompt injection. A deterministic policy gate (`lib/aegis-agent.ts`)
+  verifies citations, identifier grounding, retrieval, and that every action targets an
+  entity seen in trusted evidence; a human approves before any synthetic action. The
+  original state machine is kept as the deterministic baseline. See
+  [Agent eval](#agent-eval) for how runs are scored and recorded.
 - **Sentinel ModelOps** — `/projects/sentinel`; POST `/api/monitor`.
   Fixed-seed training (1,400 rows) and evaluation (600 rows) of an L2-regularized logistic
   regression against a 2-feature baseline, threshold analysis, score distributions,
@@ -31,28 +35,66 @@ own project pages (full view with a case study).
   The baseline is not a trained model. Scores are uncalibrated. Token contributions
   explain this linear model and are not causal importance.
 - **Prism Bench** — `/projects/prism`; POST `/api/retrieval`.
-  BM25, character-trigram TF-IDF vectors, and hybrid reciprocal rank fusion scored
-  against 28 graded queries on a 32-document synthetic knowledge base. Character n-grams
-  are not neural embeddings. The release gate uses deterministic IR metrics (recall@k,
-  MRR, nDCG, slice regression); there is no LLM judge.
+  BM25, character-trigram TF-IDF, OpenAI dense embeddings (`text-embedding-3-large`,
+  256 dimensions), and reciprocal rank fusion of BM25 with either vector type, scored
+  against 28 graded queries on a 32-document synthetic knowledge base. Embeddings are
+  precomputed offline and hashed against their source text. The release gate uses
+  deterministic IR metrics (recall@k, MRR, nDCG, slice regression); there is no LLM judge.
 
 The homepage includes the supplied portrait, professional experience, contact links,
 and the original supplied CV as a PDF download. Project pages document baselines,
 measurement definitions, failure modes, and production tradeoffs.
+
+## Agent eval
+
+`scripts/aegis-eval.ts` runs every Aegis case several times against the real model and
+scores each run in code against ground truth in `lib/aegis-cases.ts`: required tools,
+disposition, expected actions, procedure, policy-gate checks, and injection resistance.
+The deterministic baseline is scored with the same rubric. It writes:
+
+- `lib/data/aegis-eval.json`: the scorecard shown on `/projects/aegis`, including the
+  pass rate of each earlier prompt version (`promptVersions` in `lib/aegis-agent.ts`).
+- `lib/data/aegis-recorded.json`: trial 1 of every case, which the site replays. Replays
+  are not chosen for success.
+
+`scripts/embed-prism.ts` regenerates `lib/data/prism-embeddings.json`. Both scripts run
+directly on Node 22.18+ (TypeScript type stripping). They read `OPENAI_API_KEY` from the
+git-ignored `.env.local` first and fall back to the environment; the file wins because
+Node's `--env-file` never overrides a variable that is already set. Use a restricted,
+project-scoped development key there, separate from the production key:
+
+```sh
+node scripts/embed-prism.ts
+node scripts/aegis-eval.ts 5
+```
+
+### Live mode
+
+By default the deployed site makes no model calls: default objectives replay recorded
+runs and custom objectives fall back to them with a notice. To allow live runs, set the
+Worker secret `OPENAI_API_KEY` to the production key (never the local development key)
+and the variable `AEGIS_LIVE=on`. Revoking the production key then turns live mode off
+without affecting local scripts. Live runs are limited to
+4 per client per 10 minutes and 40 per hour, time out after 45 seconds, and are cached
+by case and objective. These limits live in Worker-isolate memory, which bounds cost for a
+portfolio; a production service would keep them in a shared store.
 
 ## Verification
 
 After building (`npm run build`, or `npx vinext build` on Windows), run:
 
 ```sh
-node --test tests/portfolio.test.mjs tests/resolve-api.test.mjs
+node --test tests/portfolio.test.mjs tests/resolve-api.test.mjs tests/aegis-agent.test.mjs
 ```
 
 These checks exercise the built Worker: page routes, homepage lab rendering, tool
 execution and citation grounding, approval policy, model fitting and drift, attack-path
 remediation, computed entity resolution, email triage against a keyword-rule baseline,
 retrieval evaluation with a deterministic release gate, malformed inputs, and legacy
-entity-resolution regression.
+entity-resolution regression. `tests/aegis-agent.test.mjs` drives the agent loop against a
+scripted model, attacks the policy gate with hallucinated evidence and untrusted
+authority, checks the eval rubric, replays and approves recorded runs through the
+Worker, and fails if any Prism embedding is stale.
 
 ## Runtime foundation
 
