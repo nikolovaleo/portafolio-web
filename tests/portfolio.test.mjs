@@ -28,7 +28,7 @@ test("homepage embeds all five labs as usable, server-rendered tabs", async () =
   assert.equal(html.match(/role="tabpanel"/g)?.length,5);
   for (const expected of ["Reachable critical paths","Population drift","Run investigation","Auto-close threshold","Query expansion","/api/graph","/api/monitor","/api/agent","/api/triage","/api/retrieval"])
     assert.ok(html.includes(expected),expected);
-  assert.ok(html.includes("not LLM evaluation") || html.includes("Not LLM evaluation"));
+  assert.ok(html.includes("Deterministic IR metrics"), "the release gate names its method");
   const skip = html.indexOf("Skip to content"), navEnd = html.indexOf("</nav>"), main = html.indexOf('<main id="content"');
   assert.ok(skip > -1 && skip < navEnd && navEnd < main, "skip link must precede the nav and target main content");
 });

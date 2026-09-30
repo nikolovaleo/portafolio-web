@@ -20,9 +20,32 @@ const practice = [
 ];
 
 const roles = [
-  { period: "Oct 2023 — Present", title: "Lead Cybersecurity Data Scientist", org: "Stryker", detail: "Production AI, data engineering, evaluation, and automation for security operations, identity analytics, cyber hygiene, and incident response." },
-  { period: "Jun 2022 — Oct 2023", title: "DCS Cybersecurity Engineer", org: "Emerson", detail: "Security hardening for distributed control systems, engineering automation, and production troubleshooting for energy-generation customers." },
-  { period: "Jan 2021 — Jan 2022", title: "Computer Researcher", org: "Tecnológico de Costa Rica", detail: "Applied deep learning for lncRNA–miRNA interaction prediction with the University of Costa Rica’s Tumor Chemosensitivity Laboratory." },
+  {
+    period: "Oct 2023 — Present", title: "Lead Cybersecurity Data Scientist", org: "Stryker · Heredia, Costa Rica",
+    scope: "Production AI and data systems for security operations, identity analytics, and incident response, on Azure AI Foundry, Azure Functions, Databricks, and MLflow.",
+    points: [
+      "Architected a production agentic investigation workflow (RAG, expert agents, enterprise APIs) that cut average SOC investigation time by 75%, from about 25 to 6 minutes, with an LLM-as-a-Judge stage checking outputs before release.",
+      "Built and evaluated classifiers on 50,000+ labeled historical reports, reducing manual review by 55% at a 96% true-negative rate.",
+      "Fine-tuned an LLM on 2,000–3,000 analyst-reviewed incident records to map cases to MITRE ATT&CK and Cyber Kill Chain stages, taking Board-level security reporting from weeks to minutes; validated on held-out closed incidents.",
+      "Built entity-resolution pipelines linking 200,000+ records from 15 enterprise sources, and correlated 110,000+ identities across 61 countries, cutting identity-review effort by 70%.",
+    ],
+  },
+  {
+    period: "Jun 2022 — Oct 2023", title: "DCS Cybersecurity Engineer", org: "Emerson · Escazú, Costa Rica",
+    scope: "Security for distributed control systems at energy-generation customers.",
+    points: [
+      "Led the design and implementation of a configurable hardening solution spanning operating systems, DCS infrastructure, historians, secure protocols, ACLs, and data-loss prevention.",
+      "Built automation tools that turned recurring manual procedures into reusable workflows for global production environments.",
+    ],
+  },
+  {
+    period: "Jan 2021 — Jan 2022", title: "Computer Researcher", org: "Tecnológico de Costa Rica",
+    scope: "Applied deep learning with the University of Costa Rica’s Tumor Chemosensitivity Laboratory.",
+    points: [
+      "Designed a deep CNN over embedding-based RNA sequence representations for lncRNA–miRNA interaction prediction.",
+      "Built laboratory-validated ground-truth datasets and used error analysis to guide model iterations.",
+    ],
+  },
 ];
 
 export default function Home() {
@@ -34,6 +57,7 @@ export default function Home() {
           <h1>Intelligent systems.<br /><em>Built end to end.</em></h1>
           <p className="hero-role">Lead Cybersecurity Data Scientist · AI/ML Engineer</p>
           <p className="hero-intro">I turn complex data into production AI systems, from pipelines and models to RAG, agents, evaluation, APIs, and monitoring.</p>
+          <p className="hero-availability"><span aria-hidden="true" />Open to Senior &amp; Lead Data Scientist roles · Remote or relocation</p>
           <div className="hero-actions">
             <a className="button" href="#labs">Try the live labs <span aria-hidden="true">→</span></a>
             <a className="button button-outline" href="/Leonardo-Urena-CV.pdf" download>Download résumé <span aria-hidden="true">↓</span></a>
@@ -52,38 +76,10 @@ export default function Home() {
     <section className="section impact" aria-labelledby="impact-title">
       <div className="container">
         <div className="section-head">
-          <div><p className="eyebrow">Selected professional impact</p><h2 id="impact-title">Work measured by outcomes,<br />not model names.</h2></div>
-          <p className="section-lede">Professional outcomes are summarized at a non-confidential level. The interactive labs below are separate personal builds on synthetic data.</p>
+          <div><p className="eyebrow">Selected impact at Stryker · 2023–present</p><h2 id="impact-title">Work measured by outcomes,<br />not model names.</h2></div>
+          <p className="section-lede">Results from my current role as Lead Cybersecurity Data Scientist at Stryker, summarized at a non-confidential level.</p>
         </div>
         <ul className="impact-grid">{impact.map(item => <li key={item.value}><strong>{item.value}</strong><span>{item.label}</span><p>{item.detail}</p></li>)}</ul>
-      </div>
-    </section>
-
-    <section className="section labs" id="labs" aria-labelledby="labs-title">
-      <div className="container">
-        <div className="section-head">
-          <div><p className="eyebrow">Interactive labs · security intelligence and applied ML</p><h2 id="labs-title">Working systems, not screenshots.</h2></div>
-          <div>
-            <p className="section-lede">Each card is the situation behind the lab. The first three are one security platform: trusted records, a monitored model, and an investigation that waits for approval. Hermes and Prism apply that same bar to email triage and search changes. Every control calls a live API.</p>
-            <p className="disclosure"><span>Personal projects</span><span>Synthetic, public-safe data</span><span>Not employer systems</span></p>
-          </div>
-        </div>
-        <HomeLabs
-          labs={projects.map(({ slug, name, context, accent, summary, group }) => ({ slug, name, tagline: context, accent, summary, group }))}
-          panels={projects.map(project => <ProjectLab key={project.slug} slug={project.slug} variant="compact" />)}
-        />
-      </div>
-    </section>
-
-    <section className="section practice" id="expertise" aria-labelledby="expertise-title">
-      <div className="container">
-        <div className="section-head">
-          <div><p className="eyebrow">AI / Data Science practice</p><h2 id="expertise-title">The complete system,<br />not just the model.</h2></div>
-          <p className="section-lede">Production quality depends as much on data, evaluation, and delivery as on model choice, so I work across the whole lifecycle.</p>
-        </div>
-        <ol className="practice-grid">{practice.map((stage, index) => <li key={stage.title}>
-          <span>0{index + 1}</span><h3>{stage.title}</h3><p>{stage.detail}</p><small>{stage.tools}</small>
-        </li>)}</ol>
       </div>
     </section>
 
@@ -99,7 +95,8 @@ export default function Home() {
           <p className="timeline-period">{role.period}</p>
           <h3>{role.title}</h3>
           <p className="timeline-org">{role.org}</p>
-          <p>{role.detail}</p>
+          <p className="timeline-scope">{role.scope}</p>
+          <ul className="timeline-points">{role.points.map(point => <li key={point}>{point}</li>)}</ul>
         </li>)}</ol>
       </div>
       <div className="container credentials">
@@ -113,6 +110,34 @@ export default function Home() {
           <div><dt>Certifications</dt><dd>Deep Learning Specialization<span>DeepLearning.AI</span></dd><dd>CompTIA Security+<span>CompTIA</span></dd></div>
           <div><dt>Languages</dt><dd>English (C1) · Spanish · Russian</dd></div>
         </dl>
+      </div>
+    </section>
+
+    <section className="section labs" id="labs" aria-labelledby="labs-title">
+      <div className="container">
+        <div className="section-head">
+          <div><p className="eyebrow">Interactive labs · security intelligence and applied ML</p><h2 id="labs-title">Working systems, not screenshots.</h2></div>
+          <div>
+            <p className="section-lede">Each card is the situation behind the lab. The first three are one security platform: trusted records, a monitored model, and an investigation that waits for approval. Hermes and Prism apply that same bar to email triage and search changes. Every control calls a live API.</p>
+            <p className="disclosure"><span>Personal projects</span><span>Synthetic, public-safe data</span><span>Not employer systems</span></p>
+          </div>
+        </div>
+        <HomeLabs
+          labs={projects.map(({ slug, name, context, accent, summary, group, shows }) => ({ slug, name, tagline: context, accent, summary, group, shows }))}
+          panels={projects.map(project => <ProjectLab key={project.slug} slug={project.slug} variant="compact" />)}
+        />
+      </div>
+    </section>
+
+    <section className="section practice" id="expertise" aria-labelledby="expertise-title">
+      <div className="container">
+        <div className="section-head">
+          <div><p className="eyebrow">AI / Data Science practice</p><h2 id="expertise-title">The complete system,<br />not just the model.</h2></div>
+          <p className="section-lede">Production quality depends as much on data, evaluation, and delivery as on model choice, so I work across the whole lifecycle.</p>
+        </div>
+        <ol className="practice-grid">{practice.map((stage, index) => <li key={stage.title}>
+          <span>0{index + 1}</span><h3>{stage.title}</h3><p>{stage.detail}</p><small>{stage.tools}</small>
+        </li>)}</ol>
       </div>
     </section>
   </main>;

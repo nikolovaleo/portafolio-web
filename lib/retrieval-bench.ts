@@ -261,7 +261,7 @@ export function runRetrievalBench(retriever: RetrieverId = "dense-hybrid", expan
     notes: {
       vectors: `Dense vectors are ${vectorStore.model} embeddings (${vectorStore.dimensions} dimensions), precomputed offline for every document and labeled query. N-gram vectors are character-trigram TF-IDF.`,
       embeddings: embeddingStatus(),
-      evaluation: "Graded nDCG, MRR, and recall against hand-labeled judgments. Not LLM evaluation.",
+      evaluation: "Graded nDCG, MRR, and recall against hand-labeled judgments.",
     },
   };
 }

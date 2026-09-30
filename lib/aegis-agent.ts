@@ -248,7 +248,7 @@ export function evaluateRun(run: Pick<AgentRun, "caseId" | "evidence" | "procedu
   const blocked = checks.some(check => !check.passed);
   const proposal = describeProposal(answer);
   const status = blocked ? "blocked" : approved ? "executed" : "awaiting_approval";
-  checks.push({ id: "approval", name: "Nothing executes without human approval", passed: true, detail: approved && !blocked ? "Approved by a human; synthetic action recorded" : "Waiting for a human decision" });
+  checks.push({ id: "approval", name: "Nothing executes without human approval", passed: true, detail: approved && !blocked ? "Approved by a human" : "Waiting for a human decision" });
   const detail = blocked
     ? "The policy gate blocked this proposal. Review the failed check; approval is not available."
     : approved ? `${proposal}. Synthetic action recorded; no external system was changed.` : "Paused for human approval. Nothing has been executed.";

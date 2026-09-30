@@ -10,9 +10,9 @@ export function SiteNav() {
           <span className="wordmark-name" aria-hidden="true">Leonardo Urena</span>
         </Link>
         <div className="nav-links">
+          <Link className="nav-optional" href="/#experience">Experience</Link>
           <Link href="/#labs">Labs</Link>
           <Link className="nav-optional" href="/#expertise">Expertise</Link>
-          <Link className="nav-optional" href="/#experience">Experience</Link>
           <a href="/Leonardo-Urena-CV.pdf">Résumé</a>
           <a className="nav-cta" href="mailto:nikolovaleo@gmail.com">Contact</a>
         </div>
@@ -26,8 +26,8 @@ export function SiteFooter() {
     <div className="container footer-inner">
       <div className="footer-cta">
         <p className="eyebrow">Get in touch</p>
-        <h2>Let’s talk about your next<br />data or AI problem.</h2>
-        <p>Based in Escazú, Costa Rica · Working in English, Spanish, and Russian.</p>
+        <h2>Hiring for data science<br />or machine learning? Let’s talk.</h2>
+        <p>Open to Senior and Lead Data Scientist / ML roles, remote or with relocation. Based in Escazú, Costa Rica · English, Spanish, and Russian.</p>
       </div>
       <ul className="footer-links">
         <li><a href="mailto:nikolovaleo@gmail.com"><span>Email</span>nikolovaleo@gmail.com<i aria-hidden="true">↗</i></a></li>
@@ -35,7 +35,7 @@ export function SiteFooter() {
         <li><a href="https://github.com/nikolovaleo" target="_blank" rel="noreferrer"><span>GitHub</span>github.com/nikolovaleo<i aria-hidden="true">↗</i></a></li>
         <li><a href="/Leonardo-Urena-CV.pdf" download><span>Résumé</span>Download PDF<i aria-hidden="true">↓</i></a></li>
       </ul>
-      <p className="copyright">© 2026 Leonardo Urena Nikolova. The interactive labs are personal projects built on synthetic data; they are not employer systems.</p>
+      <p className="copyright">© 2026 Leonardo Urena Nikolova.</p>
     </div>
   </footer>;
 }

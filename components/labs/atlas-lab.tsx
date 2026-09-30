@@ -94,7 +94,7 @@ function EntityResolution({ resolution }: { resolution: Resolution }) {
         </li>)}</ul>
       </article>)}
     </div>
-    <p className="lab-note">{resolution.linked} of {resolution.candidates.length + 1} records link automatically; borderline pairs go to analyst review. Weights are hand-set for this demo, so scores rank candidates and are not calibrated probabilities.</p>
+    <p className="lab-note">{resolution.linked} of {resolution.candidates.length + 1} records link automatically; borderline pairs go to analyst review. Weights are hand-set for this demo.</p>
   </section>;
 }
 
@@ -130,7 +130,7 @@ export function AtlasLab({ initial, remediations, variant }: { initial: GraphRes
       <Metric label="Reachable critical paths" value={summary.paths} detail={`of ${summary.baselinePaths} before remediation`} />
       <Metric label="Paths removed" value={summary.eliminated} detail={summary.eliminated > 0 ? "by this control" : "no change"} tone={summary.eliminated > 0 ? "good" : undefined} />
       <Metric label="Top path score" value={summary.paths ? `${summary.highestRisk.toFixed(1)}%` : "—"} detail={summary.paths ? "edge-likelihood product" : `was ${summary.baselineHighestRisk.toFixed(1)}% before remediation`} tone={summary.paths ? undefined : "good"} />
-      {!compact && <Metric label="Graph coverage" value={summary.entities} detail={`entities from ${summary.sources} synthetic sources`} />}
+      {!compact && <Metric label="Graph coverage" value={summary.entities} detail={`entities from ${summary.sources} sources`} />}
     </dl>
     <div className="lab-body atlas-body">
       <section className="panel graph-panel" aria-label="Attack graph">
@@ -155,7 +155,7 @@ export function AtlasLab({ initial, remediations, variant }: { initial: GraphRes
       </section>
     </div>
     {!compact && <EntityResolution resolution={graph.entityResolution} />}
-    <p className="lab-note">Path score multiplies assumed edge likelihoods to rank paths. It is a heuristic, not a trained model or a probability of compromise.</p>
+    <p className="lab-note">Path score multiplies assumed edge likelihoods to rank paths.</p>
     <LiveSummary>{loading ? "" : summary.paths ? `${summary.paths} reachable critical paths. Top path score ${summary.highestRisk}%.` : "No reachable critical paths remain."}</LiveSummary>
   </div>;
 }

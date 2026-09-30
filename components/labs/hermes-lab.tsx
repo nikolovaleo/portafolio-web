@@ -84,7 +84,7 @@ export function HermesLab({ initial, variant }: { initial: TriageResult; variant
       <div className="field">
         <label htmlFor={`${id}-text`}>Score your own text</label>
         <textarea id={`${id}-text`} value={draft} rows={2} maxLength={2000} aria-describedby={`${id}-text-help`} onChange={event => { const next = event.target.value; setDraft(next); request(threshold, sampleId, next); }} />
-        <p id={`${id}-text-help`}>Optional. Leave empty to use the selected sample. Synthetic scoring only; nothing is sent to an email system.</p>
+        <p id={`${id}-text-help`}>Optional. Leave empty to use the selected sample.</p>
       </div>
     </div>}
     <LabError message={error} />
@@ -101,7 +101,7 @@ export function HermesLab({ initial, variant }: { initial: TriageResult; variant
           <p>{report.family ?? "Unlabeled"}{report.label === undefined ? "" : report.label ? " · actual phishing" : " · actual benign"}</p>
         </header>
         <div className="prediction">
-          <div><strong>{percent(report.probability)}</strong><span>champion score (uncalibrated)</span></div>
+          <div><strong>{percent(report.probability)}</strong><span>champion score</span></div>
           <b data-decision={report.decision}>{report.decision}</b>
         </div>
         <HighlightedReport text={report.text} contributions={report.contributions} />
@@ -148,7 +148,7 @@ export function HermesLab({ initial, variant }: { initial: TriageResult; variant
         </div>
       </section>
     </div>}
-    <p className="lab-note"><strong>Synthetic data.</strong> {dataset.trainRows.toLocaleString("en-US")} training and {dataset.testRows} test reports generated with a fixed seed. Scores are uncalibrated. This is a personal lab, not an employer mail filter.</p>
+    <p className="lab-note"><strong>Synthetic data.</strong> {dataset.trainRows.toLocaleString("en-US")} training and {dataset.testRows} test reports generated with a fixed seed.</p>
     <LiveSummary>{loading ? "" : `True-negative rate ${percent(metrics.trueNegativeRate)}, recall ${percent(metrics.recall)}, ${metrics.missed} missed phishing. ${report.decision}.`}</LiveSummary>
   </div>;
 }

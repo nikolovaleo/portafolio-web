@@ -20,7 +20,7 @@ const idleTrace = [
   { step: "Approval gate", status: "idle", detail: "Blocks containment until a human approves." },
 ];
 const statusLabel: Record<string, string> = { complete: "Done", waiting: "Waiting", blocked: "Blocked", idle: "Ready" };
-const approvalLabel: Record<string, string> = { executed: "Approved · synthetic action recorded", blocked: "Blocked by the policy gate", awaiting_approval: "Human approval required", failed: "Run failed" };
+const approvalLabel: Record<string, string> = { executed: "Approved · action recorded", blocked: "Blocked by the policy gate", awaiting_approval: "Human approval required", failed: "Run failed" };
 const dispositionLabel: Record<string, string> = { contain: "Contain", monitor: "Monitor", close_benign: "Close as benign" };
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 const REPLAY_BUDGET_MS = 3200;
@@ -147,7 +147,7 @@ function AgentView({ payload, revealed, compact, id, onApprove, onTamper, loadin
         <p>{gate.detail}</p>
       </div>
       {gate.status === "awaiting_approval"
-        ? <button type="button" className="button button-outline" onClick={onApprove} disabled={loading}>{run.answer?.actions.length ? "Approve synthetic action" : "Confirm closure"}</button>
+        ? <button type="button" className="button button-outline" onClick={onApprove} disabled={loading}>{run.answer?.actions.length ? "Approve action" : "Confirm closure"}</button>
         : gate.status === "executed" ? <span className="approval-done">✓ Recorded</span> : <span className="approval-blocked">✕ Not approvable</span>}
     </div>}
     {done && run.answer && <div className="red-team">
@@ -213,7 +213,7 @@ function BaselineView({ result, compact, id, onApprove, loading }: { result: Bas
         <p>{result.action.detail}</p>
       </div>
       {result.action.status === "awaiting_approval"
-        ? <button type="button" className="button button-outline" onClick={onApprove} disabled={loading}>Approve synthetic action</button>
+        ? <button type="button" className="button button-outline" onClick={onApprove} disabled={loading}>Approve action</button>
         : result.action.status === "blocked" ? <span className="approval-blocked">✕ Not approvable</span> : <span className="approval-done">✓ Recorded</span>}
     </div>
     {!compact && <div className="lab-body aegis-body">

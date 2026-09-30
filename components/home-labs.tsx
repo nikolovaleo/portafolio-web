@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
-type LabTab = { slug: string; name: string; tagline: string; accent: string; summary: string; group: string };
+type LabTab = { slug: string; name: string; tagline: string; accent: string; summary: string; group: string; shows: readonly string[] };
 
 function groupRanges(labs: LabTab[]) {
   const ranges: Array<{ group: string; start: number; count: number }> = [];
@@ -64,6 +64,7 @@ export default function HomeLabs({ labs, panels }: { labs: LabTab[]; panels: Rea
       hidden={index !== active}
       className={`lab-panel accent-${lab.accent}`}
     >
+      <p className="lab-shows"><span>What this shows</span>{lab.shows.join(" · ")}</p>
       {panels[index]}
       <footer className="lab-panel-foot">
         <p>{lab.summary}</p>

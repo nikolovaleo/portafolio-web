@@ -41,13 +41,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <div>
           <p className="eyebrow">{project.category}</p>
           <h1>{project.name}</h1>
+          <p className="lab-shows project-shows"><span>What this shows</span>{project.shows.join(" · ")}</p>
           <p className="project-intro">{project.intro}</p>
           <ul className="tag-list" aria-label="Techniques">{project.tags.map(tag => <li key={tag}>{tag}</li>)}</ul>
         </div>
         <dl className="project-meta">
           <div><dt>Endpoint</dt><dd><code>POST /api/{project.endpoint}</code></dd></div>
-          <div><dt>Data</dt><dd>Synthetic, public-safe</dd></div>
-          <div><dt>Context</dt><dd>Personal project · Not an employer system</dd></div>
+          <div><dt>Context</dt><dd>Personal project on synthetic data · Not an employer system</dd></div>
         </dl>
       </header>
 

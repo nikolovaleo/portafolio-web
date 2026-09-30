@@ -93,7 +93,7 @@ export function SentinelLab({ initial, variant }: { initial: ModelResult; varian
       <section className="panel" aria-labelledby={`${id}-explain`}>
         <header className="panel-head"><h3 id={`${id}-explain`}>Prediction explanation</h3><p>Test sample #{sample.index} · actual label: {sample.label}</p></header>
         <div className="prediction">
-          <div><strong>{percent(sample.probability)}</strong><span>champion score (uncalibrated)</span></div>
+          <div><strong>{percent(sample.probability)}</strong><span>champion score</span></div>
           <b data-decision={sample.decision}>{sample.decision}</b>
         </div>
         <ul className="contributions">{sample.contributions.map(item => <li key={item.feature}>
@@ -102,7 +102,7 @@ export function SentinelLab({ initial, variant }: { initial: ModelResult; varian
           <strong>{item.contribution > 0 ? "+" : ""}{item.contribution.toFixed(3)}</strong>
         </li>)}</ul>
         <p className="logit-sum">Intercept <strong>{model.model.bias.toFixed(3)}</strong> + contributions = logit <strong>{(model.model.bias + sample.contributions.reduce((sum, item) => sum + item.contribution, 0)).toFixed(3)}</strong></p>
-        <p className="lab-note">Logit contributions (weight × feature value) explain this linear model’s output. They are not causal effects.</p>
+        <p className="lab-note">Logit contribution = fitted weight × feature value for this connection.</p>
       </section>
       <section className="panel" aria-labelledby={`${id}-model`}>
         <header className="panel-head"><h3 id={`${id}-model`}>Fitted champion</h3><p>{model.model.type} · {model.model.epochs} epochs · seed {dataset.seed}</p></header>
@@ -115,7 +115,7 @@ export function SentinelLab({ initial, variant }: { initial: ModelResult; varian
         </table></div>
       </section>
     </div>}
-    <p className="lab-note"><strong>Synthetic data.</strong> {dataset.trainRows.toLocaleString("en-US")} training and {dataset.testRows} test rows generated with a fixed seed, inspired by the UNSW-NB15 feature domain. These are not official benchmark results.</p>
+    <p className="lab-note"><strong>Synthetic data.</strong> {dataset.trainRows.toLocaleString("en-US")} training and {dataset.testRows} test rows generated with a fixed seed, inspired by the UNSW-NB15 feature domain; not official benchmark results.</p>
     <LiveSummary>{loading ? "" : `Precision ${percent(metrics.precision)}, recall ${percent(metrics.recall)}, PSI ${metrics.psi.toFixed(3)}, ${metrics.driftStatus.toLowerCase()}.`}</LiveSummary>
   </div>;
 }

@@ -79,7 +79,7 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
       <div>
         <span className="gate-label">{gate.verdict}</span>
         <strong>{gate.verdict === "PROMOTE" ? "Candidate clears the release gate." : "Candidate is held against the frozen BM25 baseline."}</strong>
-        <p>{gate.method}; no LLM judge.</p>
+        <p>Deterministic IR metrics against the frozen BM25 baseline.</p>
       </div>
       <ul>{gate.rules.map(rule => <li key={rule.name} data-passed={rule.passed}><span aria-hidden="true">{rule.passed ? "✓" : "✕"}</span>{rule.name}<small>{rule.detail}</small></li>)}</ul>
     </div>
