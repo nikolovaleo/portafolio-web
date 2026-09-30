@@ -2,6 +2,43 @@ import HomeLabs from "@/components/home-labs";
 import { ProjectLab } from "@/components/labs/project-lab";
 import { projects } from "@/lib/projects";
 
+const siteUrl = "https://www.leonardo-urena.com";
+
+/** schema.org profile so search engines can show name, title, employer, and links. */
+const profileJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
+      name: "Leonardo Urena Nikolova",
+      alternateName: "Leonardo Urena",
+      jobTitle: "Lead Cybersecurity Data Scientist",
+      description: "Data scientist and ML engineer building production machine learning, LLM agents, RAG, and evaluation systems.",
+      url: siteUrl,
+      image: `${siteUrl}/leonardo-urena-portrait.jpg`,
+      email: "mailto:nikolovaleo@gmail.com",
+      worksFor: { "@type": "Organization", name: "Stryker", url: "https://www.stryker.com" },
+      address: { "@type": "PostalAddress", addressLocality: "Escazú", addressCountry: "CR" },
+      alumniOf: { "@type": "CollegeOrUniversity", name: "Tecnológico de Costa Rica" },
+      hasCredential: [
+        { "@type": "EducationalOccupationalCredential", name: "Deep Learning Specialization", recognizedBy: { "@type": "Organization", name: "DeepLearning.AI" } },
+        { "@type": "EducationalOccupationalCredential", name: "CompTIA Security+", recognizedBy: { "@type": "Organization", name: "CompTIA" } },
+      ],
+      knowsAbout: ["Machine learning", "Data science", "Large language models", "Agentic AI", "Retrieval-augmented generation", "Entity resolution", "ML evaluation", "Data engineering", "Cybersecurity"],
+      knowsLanguage: ["en", "es", "ru"],
+      sameAs: ["https://www.linkedin.com/in/nikolovaleo/", "https://github.com/nikolovaleo"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "Leonardo Urena · AI & Data Science",
+      author: { "@id": `${siteUrl}/#person` },
+    },
+  ],
+};
+
 const specialties = ["Machine learning", "Agentic AI", "RAG systems", "Data platforms", "ML evaluation"];
 
 const impact = [
@@ -50,6 +87,7 @@ const roles = [
 
 export default function Home() {
   return <main id="content">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(profileJsonLd).replace(/</g, "\\u003c") }} />
     <header className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">

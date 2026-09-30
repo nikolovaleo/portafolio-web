@@ -22,6 +22,16 @@ test("homepage establishes AI and data science expertise with evidence", async (
   for (const expected of ["AI &amp; Data Science","Agentic AI","RAG systems","200K+","Weeks → minutes","Data foundation","Generative AI","Evaluation","Production","89.93%"])
     assert.ok(html.includes(expected),expected);
 });
+test("homepage publishes a schema.org Person profile", async () => {
+  const html = await (await request("/")).text();
+  const block = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(block, "JSON-LD script present");
+  const person = JSON.parse(block[1])["@graph"].find(node => node["@type"] === "Person");
+  assert.equal(person.name, "Leonardo Urena Nikolova");
+  assert.equal(person.jobTitle, "Lead Cybersecurity Data Scientist");
+  assert.equal(person.worksFor.name, "Stryker");
+  assert.ok(person.sameAs.includes("https://www.linkedin.com/in/nikolovaleo/"));
+});
 test("homepage embeds all five labs as usable, server-rendered tabs", async () => {
   const html = await (await request("/")).text();
   assert.ok(html.includes('role="tablist"'));
