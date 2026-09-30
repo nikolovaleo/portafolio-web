@@ -656,6 +656,76 @@ a.cite:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 
 @keyframes pulse { 50% { opacity: 0.35; } }
 
+/* Aegis LLM agent */
+.lab-aegis .lab-toolbar > .choice-group:last-child { flex-basis: 100%; }
+.agent-metrics { border-top: 0; }
+.agent-trace code, .trace strong code { color: var(--accent); font-size: 0.8rem; }
+.agent-trace p code { display: inline-block; margin: 2px 6px 2px 0; padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 5px; color: var(--ink-2); font-size: 0.72rem; }
+.trace-args { margin-left: 2px; color: var(--muted); font: 500 0.76rem/1.4 var(--font-mono); overflow-wrap: anywhere; }
+.trace-meta { font-family: var(--font-mono); font-size: 0.72rem !important; }
+.trace-flag { color: var(--amber) !important; font-weight: 600; }
+.agent-trace li[data-trust="untrusted"] .trace-index { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 10%, transparent); color: var(--amber); }
+.agent-trace li { animation: trace-in 0.28s ease both; }
+.trace-pending .trace-index { border-style: dashed; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes trace-in { from { opacity: 0; transform: translateY(4px); } }
+.agent-summary { padding: 16px 20px 0; color: var(--ink); font-size: 0.95rem; line-height: 1.6; }
+.agent-procedure { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 20px 14px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 0.85rem; }
+.agent-procedure span { color: var(--muted); font: 600 0.7rem/1.4 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.agent-procedure strong { color: var(--accent); font-weight: 600; }
+.quarantine { margin: 0 20px 14px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--amber) 6%, transparent); }
+.quarantine span { color: var(--amber); font: 600 0.7rem/1.4 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.quarantine blockquote { margin-top: 6px; color: var(--ink-2); font-size: 0.84rem; font-style: italic; line-height: 1.55; }
+.checks li > span:not([aria-hidden]):not(.visually-hidden) { display: grid; gap: 1px; }
+.checks li small { color: var(--muted); font: 500 0.72rem/1.4 var(--font-mono); }
+.cite[data-trust="untrusted"] { border-color: color-mix(in srgb, var(--amber) 55%, transparent); color: var(--amber); }
+.evidence-grid article[data-trust="untrusted"], .evidence-list li[data-trust="untrusted"] span { border-color: color-mix(in srgb, var(--amber) 45%, transparent); }
+.evidence-grid article[data-trust="untrusted"] span, .evidence-list li[data-trust="untrusted"] span { color: var(--amber); }
+.red-team { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin: 0 22px 16px; padding: 14px 18px; border: 1px dashed var(--line-strong); border-radius: var(--radius-md); }
+.red-team p { flex: 1 1 360px; color: var(--muted); font-size: 0.84rem; line-height: 1.55; }
+.red-team strong { color: var(--ink); }
+.lab-notice { margin: 16px 22px 0; padding: 10px 14px; border-left: 2px solid var(--amber); background: color-mix(in srgb, var(--amber) 6%, transparent); color: var(--ink-2); font-size: 0.84rem; }
+.abstain { margin: 16px 22px; border: 1px solid var(--line); border-radius: var(--radius-md); }
+
+/* Aegis eval scorecard */
+.scorecard { margin-top: clamp(48px, 6vw, 72px); }
+.scorecard-metrics { margin-top: 28px; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+.scorecard-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+.scorecard .panel { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--bg-raised); overflow: hidden; }
+.scorecard-table tbody th small { display: block; margin-top: 2px; color: var(--muted); font: 500 0.72rem/1.4 var(--font-mono); }
+.data-table td[data-tone="good"] { color: var(--good); }
+.data-table td[data-tone="alert"] { color: var(--red); }
+.trial-dots { display: inline-flex; gap: 4px; margin-right: 10px; vertical-align: middle; }
+.trial-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--red); }
+.trial-dots i[data-pass="true"] { background: var(--good); }
+.criteria-bars { display: grid; gap: 12px; padding: 18px 20px; }
+.criteria-bars li { display: grid; grid-template-columns: minmax(0, 1fr) 90px 44px; align-items: center; gap: 12px; color: var(--ink-2); font-size: 0.84rem; }
+.criteria-bars i { display: block; height: 8px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.criteria-bars b { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.criteria-bars strong { font: 500 0.8rem/1 var(--font-mono); text-align: right; }
+.iteration { margin-top: 16px; }
+.iteration > ol { display: grid; }
+.iteration > ol > li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.iteration-version { display: grid; place-items: center; height: 28px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font: 600 0.75rem/1 var(--font-mono); }
+.iteration strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.iteration strong small { color: var(--muted); font-size: 0.8rem; font-weight: 500; }
+.iteration p { margin-top: 4px; color: var(--ink-2); font-size: 0.86rem; line-height: 1.55; }
+.iteration ul { display: grid; gap: 2px; margin-top: 8px; }
+.iteration ul li { color: var(--muted); font: 500 0.74rem/1.5 var(--font-mono); }
+.iteration ul li::before { content: "✕ "; color: var(--red); }
+
+/* Prism leaderboard */
+.leaderboard-panel { border-bottom: 1px solid var(--line); }
+.data-table tr[data-active] th .query-pick, .data-table tr[data-active] td { color: var(--accent); }
+
+@media (max-width: 960px) {
+  .scorecard-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .red-team, .lab-notice, .abstain { margin-inline: 16px; }
+  .criteria-bars li { grid-template-columns: minmax(0, 1fr) 60px 40px; }
+  .iteration > ol > li { padding: 14px 16px; }
+}
+
 /* Responsive */
 @media (max-width: 1100px) {
   .lab-tab { padding: 14px; }

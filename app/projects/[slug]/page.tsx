@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AegisScorecard } from "@/components/labs/aegis-scorecard";
 import { ProjectLab } from "@/components/labs/project-lab";
 import { projects } from "@/lib/projects";
 
@@ -51,6 +52,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       </header>
 
       <ProjectLab slug={project.slug} variant="full" />
+
+      {project.slug === "aegis" && <AegisScorecard />}
 
       <section className="case-study" aria-labelledby="case-title">
         <div className="section-head">
