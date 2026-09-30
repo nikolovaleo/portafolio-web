@@ -1,97 +1,30 @@
-export const retrievers = ["bm25", "ngram", "hybrid"] as const;
+import embeddings from "./data/prism-embeddings.json" with { type: "json" };
+import { cosine } from "./openai.ts";
+import { documents, documentText, expandQuery, queries, textHash, tokenize, vectorQueryText, type Query, type Slice } from "./prism-corpus.ts";
+
+export const retrievers = ["bm25", "ngram", "hybrid", "dense", "dense-hybrid"] as const;
 export type RetrieverId = (typeof retrievers)[number];
 
-type Document = { id: string; title: string; text: string };
-type Slice = "exact" | "paraphrase" | "acronym" | "typo" | "multi";
-type Query = { id: string; text: string; slice: Slice; relevant: Record<string, number> };
-
-const documents: Document[] = [
-  { id: "KB-01", title: "Phishing-resistant MFA enrollment", text: "Require phishing-resistant multifactor authentication for privileged users. FIDO2 security keys replace SMS and push prompts. Enrollment is handled at the identity gateway." },
-  { id: "KB-02", title: "Session revocation after takeover", text: "Revoke active sessions, reset credentials, inspect multifactor methods, and preserve timestamps when an identity is suspected compromised." },
-  { id: "KB-03", title: "Cloud credential rotation", text: "Disable the exposed service credential, rotate dependent secrets, review warehouse reads, and preserve cloud audit logs before any remediation." },
-  { id: "KB-04", title: "Least privilege for warehouse roles", text: "Remove standing write access to the data warehouse. Finance applications should use least privilege roles reviewed quarterly." },
-  { id: "KB-05", title: "Backup network segmentation", text: "Segment the backup vault from the warehouse replication path. Network segmentation removes the remaining hop to critical archives." },
-  { id: "KB-06", title: "Endpoint detection isolation", text: "Endpoint detection and response isolation contains a compromised laptop. Capture process evidence, block confirmed indicators, then reimage." },
-  { id: "KB-07", title: "Public API web application firewall", text: "Apply a web application firewall policy to the public API. The WAF sits in front of the exposed service and drops unauthenticated probes." },
-  { id: "KB-08", title: "Entity resolution field matching", text: "Join duplicate device records with weighted field comparison. Hostname, device id, and owner agreement produce a match; borderline pairs go to review." },
-  { id: "KB-09", title: "Population stability index monitor", text: "The population stability index measures covariate drift between a reference score distribution and live traffic. Raise a watch when PSI exceeds 0.1." },
-  { id: "KB-10", title: "Identity compromise procedure", text: "Procedure for identity takeover: revoke sessions, reset credentials, inspect MFA, isolate the assigned endpoint if execution evidence is present." },
-  { id: "KB-11", title: "Cloud credential procedure", text: "Procedure for leaked cloud keys: disable the credential, rotate secrets, review data access, and keep audit evidence." },
-  { id: "KB-12", title: "Endpoint malware procedure", text: "Procedure for endpoint execution: isolate the host, collect process and network evidence, block indicators, and scope related devices." },
-  { id: "KB-13", title: "Evidence quality policy", text: "Every material claim must cite a returned tool record. Missing evidence produces an explicit abstention rather than an inferred fact." },
-  { id: "KB-14", title: "Attack path enumeration", text: "Enumerate every path from an external entry point to critical data. Path score multiplies assumed edge likelihoods to rank exposure." },
-  { id: "KB-15", title: "Conditional access for finance SSO", text: "Require device compliance and phishing-resistant MFA before the identity gateway issues a finance application session." },
-  { id: "KB-16", title: "Secret rotation for public API", text: "Rotate the public API service credential on a 30-day cycle. Stale service credentials are a common warehouse path." },
-  { id: "KB-17", title: "CMDB and EDR record hygiene", text: "Configuration management and endpoint records describe the same laptop with different identifiers. Normalize hostname and owner before graph join." },
-  { id: "KB-18", title: "Wire transfer impersonation response", text: "Business email compromise requesting a wire transfer is handled as impersonation. Verify the request out of band and freeze the beneficiary payment." },
-  { id: "KB-19", title: "Lookalike domain takedown", text: "Payroll lookalike domains harvest direct-deposit updates. Block the domain, warn staff, and reset any submitted credentials." },
-  { id: "KB-20", title: "Authentication overview", text: "Authentication covers passwords, sessions, tokens, and device posture. Long-lived sessions and reused passwords remain a common failure mode across applications." },
-  { id: "KB-21", title: "Network overview", text: "Networks connect public services, identity gateways, finance applications, warehouses, and backup archives. Segmentation and firewall policy bound east-west movement." },
-  { id: "KB-22", title: "Data warehouse access review", text: "Warehouse access reviews list every identity with read or write roles. Standing write access should be removed unless a ticket justifies it." },
-  { id: "KB-23", title: "Incident evidence collection", text: "Collect identity, endpoint, threat intelligence, and graph context before recommending containment. Do not execute containment without approval." },
-  { id: "KB-24", title: "Threshold selection for classifiers", text: "A classifier threshold trades recall for analyst workload. Lowering the threshold catches more attacks and sends more benign mail to review." },
-  { id: "KB-25", title: "BM25 lexical retrieval notes", text: "BM25 ranks documents by term frequency with inverse document frequency. Exact rare terms dominate. Typos and acronyms without expansion miss." },
-  { id: "KB-26", title: "Character n-gram retrieval notes", text: "Character trigram vectors recover misspellings through overlapping substrings. They are lexical features, not neural embeddings, and can dilute exact rare terms." },
-  { id: "KB-27", title: "Hybrid rank fusion notes", text: "Reciprocal rank fusion combines independent rankings. A hybrid of BM25 and character n-grams often lifts typos without giving up exact-term recall." },
-  { id: "KB-28", title: "Query expansion lexicon", text: "A curated thesaurus expands acronyms such as EDR, MFA, PSI, SOP, BEC, CMDB, and WAF into the phrases operators actually wrote in procedures." },
-  { id: "KB-29", title: "Release gate for retrieval changes", text: "Promote a retriever only when recall at k rises, MRR does not drop, and no query slice regresses by more than ten points against the frozen baseline." },
-  { id: "KB-30", title: "SOC investigation workflow", text: "Investigations retrieve trusted procedures, cite tool evidence, and pause at a human approval gate. Retrieval quality determines whether the right procedure is on the page." },
-  { id: "KB-31", title: "Acronym disambiguation glossary", text: "MFA also means mail forwarding alias and metadata file archive. EDR is a drawing revision. PSI is a pressure unit. SOP is a start-of-packet flag. BEC is a billing entity code. CMDB is sometimes misread as a commute database. WAF is used here as a warehouse allocation forecast. These senses are unrelated to the security procedures." },
-  { id: "KB-32", title: "Operations status log", text: "Warehouse role write index monitor field matching public API session login path hop archives data finance application identity gateway laptop records extra access stolen login keeping a session. The log lists tokens without stating the control that should be applied." },
-];
-
-const queries: Query[] = [
-  { id: "Q01", text: "phishing-resistant MFA", slice: "exact", relevant: { "KB-01": 2, "KB-15": 1 } },
-  { id: "Q02", text: "least privilege warehouse write role", slice: "exact", relevant: { "KB-04": 2, "KB-22": 1 } },
-  { id: "Q03", text: "backup network segmentation", slice: "exact", relevant: { "KB-05": 2, "KB-21": 1 } },
-  { id: "Q04", text: "web application firewall public API", slice: "exact", relevant: { "KB-07": 2, "KB-16": 1 } },
-  { id: "Q05", text: "population stability index monitor", slice: "exact", relevant: { "KB-09": 2, "KB-24": 1 } },
-  { id: "Q06", text: "entity resolution field matching", slice: "exact", relevant: { "KB-08": 2, "KB-17": 1 } },
-  { id: "Q07", text: "stop a stolen login from keeping a session", slice: "paraphrase", relevant: { "KB-02": 2, "KB-10": 1 } },
-  { id: "Q08", text: "remove extra access to finance data", slice: "paraphrase", relevant: { "KB-04": 2, "KB-22": 1 } },
-  { id: "Q09", text: "how do we join duplicate laptop records", slice: "paraphrase", relevant: { "KB-08": 2, "KB-17": 1 } },
-  { id: "Q10", text: "cut the last hop to the archives", slice: "paraphrase", relevant: { "KB-05": 2, "KB-14": 1 } },
-  { id: "Q11", text: "keep a retrieval change from quietly getting worse", slice: "paraphrase", relevant: { "KB-29": 2, "KB-27": 1 } },
-  { id: "Q12", text: "EDR containment steps", slice: "acronym", relevant: { "KB-06": 2, "KB-12": 1 } },
-  { id: "Q13", text: "PSI drift alerting", slice: "acronym", relevant: { "KB-09": 2, "KB-24": 1 } },
-  { id: "Q14", text: "SOP for BEC wire payment", slice: "acronym", relevant: { "KB-18": 2, "KB-10": 1 } },
-  { id: "Q15", text: "CMDB join with EDR", slice: "acronym", relevant: { "KB-17": 2, "KB-08": 1 } },
-  { id: "Q16", text: "WAF in front of the public API", slice: "acronym", relevant: { "KB-07": 2, "KB-16": 1 } },
-  { id: "Q17", text: "phising resistant mfa", slice: "typo", relevant: { "KB-01": 2, "KB-15": 1 } },
-  { id: "Q18", text: "endpont isolation", slice: "typo", relevant: { "KB-06": 2, "KB-12": 1 } },
-  { id: "Q19", text: "sesion revocation after takeover", slice: "typo", relevant: { "KB-02": 2, "KB-10": 1 } },
-  { id: "Q20", text: "least privlege warehouse role", slice: "typo", relevant: { "KB-04": 2, "KB-22": 1 } },
-  { id: "Q21", text: "popultion stability index", slice: "typo", relevant: { "KB-09": 2, "KB-24": 1 } },
-  { id: "Q22", text: "entity reslution matching", slice: "typo", relevant: { "KB-08": 2, "KB-17": 1 } },
-  { id: "Q23", text: "contain an identity takeover", slice: "multi", relevant: { "KB-10": 2, "KB-02": 2, "KB-01": 1 } },
-  { id: "Q24", text: "respond to leaked cloud key", slice: "multi", relevant: { "KB-11": 2, "KB-03": 2, "KB-16": 1 } },
-  { id: "Q25", text: "close paths to critical data", slice: "multi", relevant: { "KB-14": 2, "KB-04": 1, "KB-05": 1 } },
-  { id: "Q26", text: "investigate endpoint execution with evidence", slice: "multi", relevant: { "KB-12": 2, "KB-06": 1, "KB-13": 1 } },
-  { id: "Q27", text: "replace keyword procedure search safely", slice: "multi", relevant: { "KB-29": 2, "KB-27": 1, "KB-30": 1 } },
-  { id: "Q28", text: "score reported mail and set a threshold", slice: "multi", relevant: { "KB-24": 2, "KB-19": 1 } },
-];
-
-const lexicon: Record<string, string[]> = {
-  edr: ["endpoint", "detection", "response", "isolation"],
-  mfa: ["multifactor", "authentication", "fido", "phishing-resistant"],
-  psi: ["population", "stability", "index", "drift"],
-  sop: ["procedure", "playbook"],
-  bec: ["wire", "transfer", "beneficiary", "impersonation"],
-  cmdb: ["configuration", "management", "inventory", "asset"],
-  waf: ["web", "application", "firewall"],
-  stolen: ["compromised", "takeover"],
-  archives: ["backup", "vault", "segmentation"],
-  extra: ["standing", "privilege"],
-  quietly: ["regress", "gate", "promote"],
+const retrieverNames: Record<RetrieverId, string> = {
+  bm25: "BM25",
+  ngram: "Character n-gram vectors",
+  hybrid: "Hybrid RRF · BM25 + n-grams",
+  dense: "Dense embeddings",
+  "dense-hybrid": "Hybrid RRF · BM25 + dense",
 };
 
-const tokenize = (text: string) => text.toLowerCase().match(/[a-z0-9][a-z0-9-]{1,}/g) ?? [];
+type StoredVector = { hash: string; vector: number[] };
+type VectorStore = { model: string; dimensions: number; createdAt: string } & Record<"documents" | "queries" | "expandedQueries", Record<string, StoredVector | undefined>>;
+const vectorStore = embeddings as VectorStore;
 
-function expandQuery(text: string, expansion: boolean) {
-  const tokens = tokenize(text);
-  if (!expansion) return tokens;
-  const extra = tokens.flatMap(token => lexicon[token] ?? []);
-  return [...tokens, ...extra];
+/** Embeddings are precomputed offline by scripts/embed-prism.ts; vectors whose source text changed are reported as stale. */
+export function embeddingStatus() {
+  const stale = [
+    ...documents.filter(document => vectorStore.documents[document.id]?.hash !== textHash(documentText(document))).map(document => document.id),
+    ...queries.filter(query => vectorStore.queries[query.id]?.hash !== textHash(vectorQueryText(query.text, false))).map(query => query.id),
+    ...queries.filter(query => vectorStore.expandedQueries[query.id]?.hash !== textHash(vectorQueryText(query.text, true))).map(query => `${query.id}+expansion`),
+  ];
+  return { model: vectorStore.model, dimensions: vectorStore.dimensions, createdAt: vectorStore.createdAt, stale };
 }
 
 function ngrams(text: string) {
@@ -174,14 +107,39 @@ function rrf(left: Array<{ id: string; score: number }>, right: Array<{ id: stri
   return [...ranks.entries()].map(([id, score]) => ({ id, score })).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 }
 
+function denseRank(queryVector: readonly number[]) {
+  return documents.map(document => ({ id: document.id, score: cosine(queryVector, vectorStore.documents[document.id]?.vector ?? []) }))
+    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+}
+
 function rank(query: Query, retriever: RetrieverId, expansion: boolean, hybridWeight: number) {
   const tokens = expandQuery(query.text, expansion);
   const lexical = bm25(tokens);
   if (retriever === "bm25") return lexical;
-  const expandedText = expansion ? `${query.text} ${tokens.join(" ")}` : query.text;
-  const vectors = ngramRank(expandedText);
+  if (retriever === "dense" || retriever === "dense-hybrid") {
+    const stored = (expansion ? vectorStore.expandedQueries : vectorStore.queries)[query.id];
+    const dense = denseRank(stored?.vector ?? []);
+    return retriever === "dense" ? dense : rrf(lexical, dense, hybridWeight);
+  }
+  const vectors = ngramRank(vectorQueryText(query.text, expansion));
   if (retriever === "ngram") return vectors;
   return rrf(lexical, vectors, hybridWeight);
+}
+
+/**
+ * Knowledge-base search used by the Aegis agent's `search_procedures` tool. With a query
+ * embedding it runs the BM25 + dense hybrid; without one it degrades to BM25 + n-grams.
+ */
+export function searchKnowledgeBase(text: string, queryVector?: readonly number[], k = 4) {
+  const lexical = bm25(expandQuery(text, true));
+  const semantic = queryVector?.length ? denseRank(queryVector) : ngramRank(vectorQueryText(text, true));
+  return {
+    retriever: queryVector?.length ? retrieverNames["dense-hybrid"] : retrieverNames.hybrid,
+    results: rrf(lexical, semantic, .5).slice(0, k).map(item => {
+      const document = documentById.get(item.id)!;
+      return { id: document.id, title: document.title, text: document.text, score: Number(item.score.toFixed(4)) };
+    }),
+  };
 }
 
 function metricsAtK(ranking: Array<{ id: string }>, relevant: Record<string, number>, k: number) {
@@ -222,13 +180,9 @@ function roundMetrics(metrics: { recall: number; precision: number; mrr: number;
 const slices: Slice[] = ["exact", "paraphrase", "acronym", "typo", "multi"];
 const documentById = new Map(documents.map(document => [document.id, document]));
 
-export function runRetrievalBench(retriever: RetrieverId = "hybrid", expansion = true, k = 5, hybridWeight = .5, inspectId = "Q17") {
-  const cutoff = Math.min(10, Math.max(1, Math.round(k)));
-  const weight = Math.min(1, Math.max(0, hybridWeight));
-  const baselineRankings = Object.fromEntries(queries.map(query => [query.id, rank(query, "bm25", false, 0)]));
-  const candidateRankings = Object.fromEntries(queries.map(query => [query.id, rank(query, retriever, expansion, weight)]));
-  const baselineRows = queries.map(query => ({ query, ...metricsAtK(baselineRankings[query.id]!, query.relevant, cutoff) }));
-  const candidateRows = queries.map(query => ({ query, ...metricsAtK(candidateRankings[query.id]!, query.relevant, cutoff) }));
+type Row = { query: Query; recall: number; precision: number; mrr: number; ndcg: number };
+
+function releaseGate(baselineRows: Row[], candidateRows: Row[]) {
   const baseline = mean(baselineRows);
   const candidate = mean(candidateRows);
   const sliceRows = slices.map(slice => {
@@ -245,6 +199,23 @@ export function runRetrievalBench(retriever: RetrieverId = "hybrid", expansion =
     { name: "No slice regresses by more than 0.10", passed: !sliceRegression, detail: sliceRegression ? `${sliceRegression.slice} Δ ${sliceRegression.delta.toFixed(3)}` : "No slice below −0.10" },
   ];
   const verdict = rules.every(rule => rule.passed) ? "PROMOTE" : "HOLD";
+  return { baseline, candidate, sliceRows, rules, verdict };
+}
+
+export function runRetrievalBench(retriever: RetrieverId = "dense-hybrid", expansion = true, k = 5, hybridWeight = .5, inspectId = "Q07") {
+  const cutoff = Math.min(10, Math.max(1, Math.round(k)));
+  const weight = Math.min(1, Math.max(0, hybridWeight));
+  const rowsFor = (id: RetrieverId, expand: boolean) => {
+    const rankings = Object.fromEntries(queries.map(query => [query.id, rank(query, id, expand, weight)]));
+    return { rankings, rows: queries.map(query => ({ query, ...metricsAtK(rankings[query.id]!, query.relevant, cutoff) })) };
+  };
+  const { rankings: baselineRankings, rows: baselineRows } = rowsFor("bm25", false);
+  const { rankings: candidateRankings, rows: candidateRows } = rowsFor(retriever, expansion);
+  const { baseline, candidate, sliceRows, rules, verdict } = releaseGate(baselineRows, candidateRows);
+  const leaderboard = retrievers.map(id => {
+    const result = id === retriever ? { candidate, verdict } : releaseGate(baselineRows, rowsFor(id, expansion).rows);
+    return { id, name: retrieverNames[id], ...roundMetrics(result.candidate), verdict: result.verdict };
+  });
   const perQuery = queries.map((query, index) => {
     const base = baselineRows[index]!;
     const next = candidateRows[index]!;
@@ -267,7 +238,7 @@ export function runRetrievalBench(retriever: RetrieverId = "hybrid", expansion =
     dataset: { documents: documents.length, queries: queries.length, slices: slices.length },
     controls: { retriever, expansion, k: cutoff, hybridWeight: Number(weight.toFixed(2)), inspectId: inspect.id },
     baseline: { name: "BM25 without expansion", ...roundMetrics(baseline) },
-    candidate: { name: retriever === "hybrid" ? "Hybrid RRF" : retriever === "ngram" ? "Character n-gram vectors" : "BM25", ...roundMetrics(candidate) },
+    candidate: { name: retrieverNames[retriever], ...roundMetrics(candidate) },
     deltas: {
       recall: Number((candidate.recall - baseline.recall).toFixed(3)),
       precision: Number((candidate.precision - baseline.precision).toFixed(3)),
@@ -276,6 +247,7 @@ export function runRetrievalBench(retriever: RetrieverId = "hybrid", expansion =
     },
     gate: { verdict, method: "deterministic IR metrics", rules },
     slices: sliceRows,
+    leaderboard,
     queries: perQuery,
     inspect: {
       id: inspect.id,
@@ -287,7 +259,8 @@ export function runRetrievalBench(retriever: RetrieverId = "hybrid", expansion =
     },
     failures,
     notes: {
-      vectors: "Character trigram TF-IDF with cosine similarity. These are not neural embeddings.",
+      vectors: `Dense vectors are ${vectorStore.model} embeddings (${vectorStore.dimensions} dimensions), precomputed offline for every document and labeled query. N-gram vectors are character-trigram TF-IDF.`,
+      embeddings: embeddingStatus(),
       evaluation: "Graded nDCG, MRR, and recall against hand-labeled judgments. Not LLM evaluation.",
     },
   };

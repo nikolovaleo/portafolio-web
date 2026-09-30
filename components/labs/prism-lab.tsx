@@ -9,7 +9,9 @@ type BenchResult = ReturnType<typeof runRetrievalBench>;
 const retrieverOptions: Array<{ id: RetrieverId; label: string; detail: string }> = [
   { id: "bm25", label: "BM25", detail: "lexical baseline" },
   { id: "ngram", label: "N-gram vectors", detail: "character trigrams" },
-  { id: "hybrid", label: "Hybrid RRF", detail: "rank fusion" },
+  { id: "hybrid", label: "BM25 + n-grams", detail: "rank fusion" },
+  { id: "dense", label: "Dense embeddings", detail: "text-embedding-3" },
+  { id: "dense-hybrid", label: "BM25 + dense", detail: "rank fusion" },
 ];
 
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
@@ -62,7 +64,7 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
       </label>
       <div className="range-group prism-ranges">
         <RangeField id={`${id}-k`} label="Cutoff k" value={k} min={1} max={10} format={value => `@${value}`} onChange={value => { setK(value); request({ ...controls, k: value }); }} />
-        {!compact && <RangeField id={`${id}-weight`} label="Hybrid n-gram weight" value={hybridWeight} min={0} max={100} disabled={retriever !== "hybrid"} format={value => `${value}%`} onChange={value => { setHybridWeight(value); request({ ...controls, hybridWeight: value }); }} />}
+        {!compact && <RangeField id={`${id}-weight`} label="Hybrid vector weight" value={hybridWeight} min={0} max={100} disabled={retriever !== "hybrid" && retriever !== "dense-hybrid"} format={value => `${value}%`} onChange={value => { setHybridWeight(value); request({ ...controls, hybridWeight: value }); }} />}
       </div>
       <EndpointBadge endpoint="/api/retrieval" latency={latency} loading={loading} />
     </div>
@@ -77,7 +79,7 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
       <div>
         <span className="gate-label">{gate.verdict}</span>
         <strong>{gate.verdict === "PROMOTE" ? "Candidate clears the release gate." : "Candidate is held against the frozen BM25 baseline."}</strong>
-        <p>{gate.method}. Not LLM evaluation — no LLM judge.</p>
+        <p>{gate.method}; no LLM judge.</p>
       </div>
       <ul>{gate.rules.map(rule => <li key={rule.name} data-passed={rule.passed}><span aria-hidden="true">{rule.passed ? "✓" : "✕"}</span>{rule.name}<small>{rule.detail}</small></li>)}</ul>
     </div>
@@ -108,6 +110,19 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
         </div>
       </section>
     </div>
+    {!compact && <section className="panel leaderboard-panel" aria-labelledby={`${id}-leaderboard`}>
+      <header className="panel-head"><h3 id={`${id}-leaderboard`}>All retrievers at @{k}</h3><p>Same 28 queries · {expansion ? "with" : "without"} query expansion · gated against BM25</p></header>
+      <div className="table-scroll"><table className="data-table">
+        <thead><tr><th scope="col">Retriever</th><th scope="col">Recall@{k}</th><th scope="col">MRR</th><th scope="col">nDCG@{k}</th><th scope="col">Gate</th></tr></thead>
+        <tbody>{data.leaderboard.map(row => <tr key={row.id} data-active={row.id === retriever || undefined}>
+          <th scope="row"><button type="button" className="query-pick" aria-pressed={row.id === retriever} onClick={() => { setRetriever(row.id); request({ ...controls, retriever: row.id }, true); }}>{row.name}</button></th>
+          <td>{percent(row.recall)}</td>
+          <td>{row.mrr.toFixed(3)}</td>
+          <td>{row.ndcg.toFixed(3)}</td>
+          <td data-tone={row.verdict === "PROMOTE" ? "good" : "alert"}>{row.verdict}</td>
+        </tr>)}</tbody>
+      </table></div>
+    </section>}
     {!compact && <div className="lab-body sentinel-body">
       <section className="panel" aria-labelledby={`${id}-queries`}>
         <header className="panel-head"><h3 id={`${id}-queries`}>Per-query recall</h3><p>Select a row to inspect rankings</p></header>
@@ -131,7 +146,7 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
         </li>)}</ul> : <p className="empty-state">Every labeled document is inside the cutoff.</p>}
       </section>
     </div>}
-    <p className="lab-note"><strong>Synthetic judgments.</strong> {data.dataset.documents} documents and {data.dataset.queries} queries. {data.notes.vectors} {data.notes.evaluation} Baseline is {baseline.name}.</p>
+    <p className="lab-note"><strong>Synthetic judgments.</strong> {data.dataset.documents} documents and {data.dataset.queries} queries. {data.notes.vectors} {data.notes.evaluation} Baseline is {baseline.name}.{data.notes.embeddings.stale.length > 0 && ` Warning: ${data.notes.embeddings.stale.length} embeddings are stale; re-run scripts/embed-prism.ts.`}</p>
     <LiveSummary>{loading ? "" : `${gate.verdict}. Recall ${percent(candidate.recall)}, MRR ${candidate.mrr.toFixed(3)}.`}</LiveSummary>
   </div>;
 }
