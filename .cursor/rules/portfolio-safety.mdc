@@ -1,0 +1,6 @@
+---
+description: Mandatory repository safeguards for every portfolio change
+alwaysApply: true
+---
+
+Follow `/AGENTS.md` for every change. Run `npm test` before committing or deploying, and do not proceed while the build or tests fail. Never add preview-only metadata or commit secrets and generated output.
