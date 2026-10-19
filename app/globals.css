@@ -230,6 +230,7 @@ img { max-width: 100%; }
 .hero-intro { max-width: 34rem; margin-top: 24px; color: var(--ink-muted); font-size: clamp(1.0625rem, 1.3vw, 1.1875rem); line-height: 1.6; }
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 36px; }
 .hero-portrait { margin: 0; }
+.hero-portrait picture { display: block; min-width: 0; }
 .hero-portrait img {
   display: block;
   width: 100%;
@@ -921,8 +922,16 @@ a.cite:hover { background: color-mix(in srgb, var(--primary) 16%, transparent); 
   .nav-links a { padding-inline: 10px; }
   .hero-grid { grid-template-columns: 1fr; gap: 32px; padding-block: 40px 32px; }
   .hero h1 { font-size: clamp(2.375rem, 10.5vw, 3rem); }
-  .hero-portrait { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 16px; }
-  .hero-portrait img { aspect-ratio: 1; border-radius: var(--radius-lg); object-position: center 22%; }
+  .hero-portrait { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 20px; }
+  .hero-portrait img {
+    width: 112px;
+    height: 112px;
+    aspect-ratio: 1;
+    border-radius: var(--radius-lg);
+    object-fit: contain;
+    object-position: center;
+    background: #10181c;
+  }
   .hero-portrait figcaption { margin-top: 0; font-size: 0.8125rem; }
   .proof-item { padding: 22px 16px 24px 0; }
   .proof-item + .proof-item { padding-left: 16px; }

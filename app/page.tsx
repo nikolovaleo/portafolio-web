@@ -55,7 +55,10 @@ export default function Home() {
           </div>
         </div>
         <figure className="hero-portrait">
-          <img src="/leonardo-urena-portrait.jpg" width="640" height="1147" alt="Portrait of Leonardo Urena Nikolova" fetchPriority="high" decoding="async" />
+          <picture>
+            <source media="(max-width: 720px)" srcSet="/leonardo-urena-portrait-mobile.png" width="1024" height="1024" />
+            <img src="/leonardo-urena-portrait.jpg" width="640" height="1147" alt="Portrait of Leonardo Urena Nikolova" fetchPriority="high" decoding="async" />
+          </picture>
           <figcaption>
             <span><strong>5+ years</strong> across production ML, AI research, and data engineering</span>
             <span className="hero-availability">{availability}</span>
