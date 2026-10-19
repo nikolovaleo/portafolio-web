@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { runTriageLab } from "@/lib/triage";
-import { EndpointBadge, LabError, LiveSummary, Metric, RangeField, useLabEndpoint, type LabVariant } from "./lab-kit";
+import { CharacterCount, EndpointBadge, LabError, LiveSummary, Metric, RangeField, useLabEndpoint, type LabVariant } from "./lab-kit";
 
 type TriageResult = ReturnType<typeof runTriageLab>;
 
@@ -43,7 +43,7 @@ export function HermesLab({ initial, variant }: { initial: TriageResult; variant
   const [threshold, setThreshold] = useState(Math.round(initial.controls.threshold * 100));
   const [sampleId, setSampleId] = useState(initial.controls.sampleId === "custom" ? "lure" : initial.controls.sampleId);
   const [draft, setDraft] = useState("");
-  const { data, loading, error, latency, run } = useLabEndpoint<TriageResult>("/api/triage", initial);
+  const { data, loading, error, latency, run, retry } = useLabEndpoint<TriageResult>("/api/triage", initial);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const custom = draft.trim().length > 0;
 
@@ -83,11 +83,15 @@ export function HermesLab({ initial, variant }: { initial: TriageResult; variant
     {!compact && <div className="aegis-command">
       <div className="field">
         <label htmlFor={`${id}-text`}>Score your own text</label>
-        <textarea id={`${id}-text`} value={draft} rows={2} maxLength={2000} aria-describedby={`${id}-text-help`} onChange={event => { const next = event.target.value; setDraft(next); request(threshold, sampleId, next); }} />
-        <p id={`${id}-text-help`}>Optional. Leave empty to use the selected sample.</p>
+        <textarea id={`${id}-text`} name="report-text" value={draft} rows={3} maxLength={2000} autoComplete="off" placeholder="Paste a suspicious email, e.g. “Your mailbox is full. Verify your password at…”" aria-describedby={`${id}-text-help ${id}-text-count`} onChange={event => { const next = event.target.value; setDraft(next); request(threshold, sampleId, next); }} />
+        <div className="field-foot">
+          <p id={`${id}-text-help`}>{custom ? "Scoring your text. Clear it to return to the selected sample." : "Optional. Leave empty to use the selected sample."}</p>
+          <CharacterCount id={`${id}-text-count`} length={draft.length} max={2000} />
+          {custom && <button type="button" className="button button-ghost button-small" onClick={() => chooseSample(sampleId)}>Clear text</button>}
+        </div>
       </div>
     </div>}
-    <LabError message={error} />
+    <LabError message={error} onRetry={retry} />
     <dl className="metrics">
       <Metric label="Benign auto-closed" value={percent(metrics.trueNegativeRate)} detail="true-negative rate" />
       <Metric label="Phishing caught" value={percent(metrics.recall)} detail="recall" />

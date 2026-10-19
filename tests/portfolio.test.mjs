@@ -19,7 +19,7 @@ test("homepage and project routes render distinct content", async () => {
 });
 test("homepage establishes AI and data science expertise with evidence", async () => {
   const html = await (await request("/")).text();
-  for (const expected of ["AI &amp; Data Science","Agentic AI","RAG systems","200K+","Weeks → minutes","Data foundation","Generative AI","Evaluation","Production","89.93%"])
+  for (const expected of ["Lead Data Scientist &amp; AI/ML Engineer","Agentic AI","RAG","25 → 6 min","55%","200K+","110K+","Data foundation","Generative AI","Evaluation","Production","89.93%"])
     assert.ok(html.includes(expected),expected);
 });
 test("homepage publishes a schema.org Person profile", async () => {
@@ -41,6 +41,39 @@ test("homepage embeds all five labs as usable, server-rendered tabs", async () =
   assert.ok(html.includes("Deterministic IR metrics"), "the release gate names its method");
   const skip = html.indexOf("Skip to content"), navEnd = html.indexOf("</nav>"), main = html.indexOf('<main id="content"');
   assert.ok(skip > -1 && skip < navEnd && navEnd < main, "skip link must precede the nav and target main content");
+});
+test("homepage presents Stryker production work with CV-verified outcomes", async () => {
+  const html = await (await request("/")).text();
+  assert.ok(html.includes('id="work"'), "production work section is anchored for the hero CTA");
+  for (const expected of ["Agentic SOC investigation","from about 25 minutes to 6","Phishing report classification","96% true-negative rate","Fine-tuned incident classifier","MITRE ATT&amp;CK","Entity resolution and identity analytics","110,000+ identities in 61 countries","LLM-as-a-Judge"])
+    assert.ok(html.includes(expected), expected);
+  assert.ok(html.includes("Simplified, non-confidential view"), "the production diagram is labeled as simplified");
+  for (const anchor of ['id="labs"','id="expertise"','id="experience"','id="contact"'])
+    assert.ok(html.includes(anchor), `existing anchor kept: ${anchor}`);
+});
+test("project pages show an architecture flow and how to use the lab", async () => {
+  for (const [slug, stage] of [["atlas","Entity resolution"],["sentinel","Drift monitor"],["aegis","Policy gate"],["hermes","Auto-close threshold"],["prism","Release gate"]]) {
+    const html = await (await request(`/projects/${slug}`)).text();
+    assert.ok(html.includes('class="flow"'), `${slug} renders an architecture flow`);
+    assert.ok(html.includes(stage), `${slug} architecture names ${stage}`);
+    assert.ok(html.includes('class="try-this"'), `${slug} explains how to use the lab`);
+    assert.ok(html.includes(`<link rel="canonical" href="https://www.leonardo-urena.com/projects/${slug}"/>`), `${slug} canonical`);
+  }
+});
+test("site publishes share cards, robots, and a sitemap", async () => {
+  const html = await (await request("/")).text();
+  assert.ok(html.includes('<meta property="og:image" content="https://www.leonardo-urena.com/og-image.png"/>'));
+  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image"/>'));
+  const project = await (await request("/projects/aegis")).text();
+  assert.ok(project.includes('<meta property="og:image" content="https://www.leonardo-urena.com/og-image.png"/>'), "project pages keep the share image");
+  const robots = await request("/robots.txt");
+  assert.equal(robots.status, 200);
+  assert.ok((await robots.text()).includes("Sitemap: https://www.leonardo-urena.com/sitemap.xml"));
+  const sitemap = await (await request("/sitemap.xml")).text();
+  for (const slug of ["atlas","sentinel","aegis","hermes","prism"]) assert.ok(sitemap.includes(`/projects/${slug}</loc>`), slug);
+  const missing = await request("/projects/missing");
+  assert.equal(missing.status, 404);
+  assert.ok((await missing.text()).includes("This page doesn’t exist."));
 });
 test("Aegis executes typed tools, cites evidence, and gates action", async () => {
   const result = await (await request("/api/agent",{caseId:"identity",question:"What happened and what should we do?"})).json();
@@ -152,5 +185,7 @@ test("Prism compares retrievers with deterministic IR metrics and a release gate
 });
 test("resume is a real PDF and portrait is present", async () => {
   assert.equal((await readFile(new URL("../public/Leonardo-Urena-CV.pdf",import.meta.url))).subarray(0,4).toString(),"%PDF");
+  assert.equal((await readFile(new URL("../public/og-image.png",import.meta.url))).subarray(1,4).toString(),"PNG");
+  assert.equal((await readFile(new URL("../public/fonts/geist-latin.woff2",import.meta.url))).subarray(0,4).toString(),"wOF2");
   assert.ok((await readFile(new URL("../public/leonardo-urena-portrait.jpg",import.meta.url))).length>1000);
 });

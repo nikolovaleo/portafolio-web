@@ -69,7 +69,7 @@ const decisionLabel = { MATCH: "Linked", REVIEW: "Needs review", NO_MATCH: "Not 
 
 function RecordFields({ record }: { record: Resolution["anchor"]["record"] }) {
   const fields = [["Hostname", record.hostname], ["Device ID", record.deviceId], ["IP", record.ip], ["Owner", record.owner], ["OS", record.os]];
-  return <dl className="record-fields">{fields.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value || "—"}</dd></div>)}</dl>;
+  return <dl className="record-fields">{fields.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value || <span className="field-missing">not recorded</span>}</dd></div>)}</dl>;
 }
 
 function EntityResolution({ resolution }: { resolution: Resolution }) {
@@ -103,7 +103,7 @@ export function AtlasLab({ initial, remediations, variant }: { initial: GraphRes
   const compact = variant === "compact";
   const [remediation, setRemediation] = useState(initial.remediation.id);
   const [selected, setSelected] = useState(0);
-  const { data: graph, loading, error, latency, run } = useLabEndpoint<GraphResult>("/api/graph", initial);
+  const { data: graph, loading, error, latency, run, retry } = useLabEndpoint<GraphResult>("/api/graph", initial);
   const { summary } = graph;
   const visiblePaths = graph.paths.slice(0, compact ? 3 : 6);
   const highlighted = graph.paths[Math.min(selected, graph.paths.length - 1)];
@@ -125,11 +125,11 @@ export function AtlasLab({ initial, remediations, variant }: { initial: GraphRes
       </fieldset>
       <EndpointBadge endpoint="/api/graph" latency={latency} loading={loading} />
     </div>
-    <LabError message={error} />
+    <LabError message={error} onRetry={retry} />
     <dl className="metrics">
       <Metric label="Reachable critical paths" value={summary.paths} detail={`of ${summary.baselinePaths} before remediation`} />
       <Metric label="Paths removed" value={summary.eliminated} detail={summary.eliminated > 0 ? "by this control" : "no change"} tone={summary.eliminated > 0 ? "good" : undefined} />
-      <Metric label="Top path score" value={summary.paths ? `${summary.highestRisk.toFixed(1)}%` : "—"} detail={summary.paths ? "edge-likelihood product" : `was ${summary.baselineHighestRisk.toFixed(1)}% before remediation`} tone={summary.paths ? undefined : "good"} />
+      <Metric label="Top path score" value={summary.paths ? `${summary.highestRisk.toFixed(1)}%` : "None"} detail={summary.paths ? "edge-likelihood product" : `was ${summary.baselineHighestRisk.toFixed(1)}% before remediation`} tone={summary.paths ? undefined : "good"} />
       {!compact && <Metric label="Graph coverage" value={summary.entities} detail={`entities from ${summary.sources} sources`} />}
     </dl>
     <div className="lab-body atlas-body">

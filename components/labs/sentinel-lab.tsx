@@ -32,7 +32,7 @@ export function SentinelLab({ initial, variant }: { initial: ModelResult; varian
   const id = useId();
   const compact = variant === "compact";
   const [controls, setControls] = useState<Controls>({ drift: initial.controls.drift, threshold: Math.round(initial.controls.threshold * 100), sampleIndex: initial.sample.index });
-  const { data: model, loading, error, latency, run } = useLabEndpoint<ModelResult>("/api/monitor", initial);
+  const { data: model, loading, error, latency, run, retry } = useLabEndpoint<ModelResult>("/api/monitor", initial);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function SentinelLab({ initial, variant }: { initial: ModelResult; varian
       </div>
       <EndpointBadge endpoint="/api/monitor" latency={latency} loading={loading} />
     </div>
-    <LabError message={error} />
+    <LabError message={error} onRetry={retry} />
     <dl className="metrics">
       <Metric label="Precision" value={percent(metrics.precision)} detail="champion" />
       <Metric label="Recall" value={percent(metrics.recall)} detail="champion" />

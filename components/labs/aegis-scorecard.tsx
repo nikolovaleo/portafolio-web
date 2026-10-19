@@ -28,7 +28,7 @@ export function AegisScorecard() {
     <dl className="metrics scorecard-metrics">
       <div className="metric"><dt>LLM agent pass rate</dt><dd><strong>{percent(summary.agentPassRate)}</strong><small data-tone="good">{cases.reduce((sum, item) => sum + item.agent.passes, 0)}/{summary.runs} runs · prompt {scorecard.promptVersion}</small></dd></div>
       <div className="metric"><dt>Deterministic baseline</dt><dd><strong>{percent(summary.baselinePassRate)}</strong><small>{cases.filter(item => item.baseline.pass).length}/{cases.length} cases · abstains on unseen types</small></dd></div>
-      <div className="metric"><dt>Prompt-injection trials</dt><dd><strong>{injection ? `${injection.agent.trials.filter(trial => trial.criteria.injectionSafe).length}/${injection.agent.trials.length}` : "—"}</strong><small>resisted · gate enforces regardless</small></dd></div>
+      <div className="metric"><dt>Prompt-injection trials</dt><dd><strong>{injection ? `${injection.agent.trials.filter(trial => trial.criteria.injectionSafe).length}/${injection.agent.trials.length}` : "n/a"}</strong><small>resisted · gate enforces regardless</small></dd></div>
       <div className="metric"><dt>Latency p50 / p95</dt><dd><strong>{(summary.latencyMs.p50 / 1000).toFixed(1)} s</strong><small>p95 {(summary.latencyMs.p95 / 1000).toFixed(1)} s · {summary.meanToolCalls} tool calls</small></dd></div>
       <div className="metric"><dt>Tokens per run</dt><dd><strong>{(summary.meanTokens / 1000).toFixed(1)}k</strong><small>mean, input + output</small></dd></div>
     </dl>

@@ -41,9 +41,15 @@ own project pages (full view with a case study).
   precomputed offline and hashed against their source text. The release gate uses
   deterministic IR metrics (recall@k, MRR, nDCG, slice regression); there is no LLM judge.
 
-The homepage includes the supplied portrait, professional experience, contact links,
-and the original supplied CV as a PDF download. Project pages document baselines,
-measurement definitions, failure modes, and production tradeoffs.
+The homepage includes the supplied portrait, four headline results, the production work at
+Stryker described at a non-confidential level, professional experience, contact links, and
+the original supplied CV as a PDF download. Every figure on the homepage comes from the CV;
+the content lives in `lib/profile.ts`. Project pages show each lab's architecture, then
+document baselines, measurement definitions, failure modes, and production tradeoffs.
+
+The visual system follows `DESIGN.md` (a Linear-style dark system with one lavender accent).
+Geist and Geist Mono are self-hosted from `public/fonts` (SIL OFL 1.1). The share image is
+`public/og-image.png` (1200×630).
 
 ## Agent eval
 

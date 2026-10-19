@@ -33,7 +33,7 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
   const [k, setK] = useState(initial.controls.k);
   const [hybridWeight, setHybridWeight] = useState(Math.round(initial.controls.hybridWeight * 100));
   const [inspectId, setInspectId] = useState(initial.controls.inspectId);
-  const { data, loading, error, latency, run } = useLabEndpoint<BenchResult>("/api/retrieval", initial);
+  const { data, loading, error, latency, run, retry } = useLabEndpoint<BenchResult>("/api/retrieval", initial);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -68,7 +68,7 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
       </div>
       <EndpointBadge endpoint="/api/retrieval" latency={latency} loading={loading} />
     </div>
-    <LabError message={error} />
+    <LabError message={error} onRetry={retry} />
     <dl className="metrics">
       <Metric label={`Recall@${k}`} value={percent(candidate.recall)} detail={`${signed(deltas.recall)} vs BM25`} tone={deltas.recall > 0 ? "good" : deltas.recall < 0 ? "alert" : undefined} />
       <Metric label={`Precision@${k}`} value={percent(candidate.precision)} detail={`${signed(deltas.precision)} vs BM25`} />
@@ -142,7 +142,7 @@ export function PrismLab({ initial, variant }: { initial: BenchResult; variant: 
         {data.failures.length ? <ul className="failure-list">{data.failures.map(item => <li key={item.id}>
           <span>{item.id} · {item.slice}</span>
           <strong>{item.text}</strong>
-          <p>Missed {item.missed.join(", ") || "—"}. Top distractor: {item.distractor}</p>
+          <p>Missed {item.missed.join(", ") || "none"}. Top distractor: {item.distractor}</p>
         </li>)}</ul> : <p className="empty-state">Every labeled document is inside the cutoff.</p>}
       </section>
     </div>}

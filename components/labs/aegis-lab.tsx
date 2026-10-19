@@ -4,7 +4,7 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import type { AgentStep, Evidence } from "@/lib/aegis-agent";
 import type { AgentPayload } from "@/lib/aegis-service";
 import type { investigateIncident } from "@/lib/platform";
-import { EndpointBadge, LabError, LiveSummary, useLabEndpoint, type LabVariant } from "./lab-kit";
+import { CharacterCount, EndpointBadge, LabError, LiveSummary, useLabEndpoint, type LabVariant } from "./lab-kit";
 
 type BaselineResult = ReturnType<typeof investigateIncident>;
 type CaseOption = { id: string; label: string; reference: string; kind: string; templated: boolean };
@@ -32,10 +32,12 @@ function parseStatements(answer: string) {
   });
 }
 
-/** Reveals a recorded run step by step at compressed real timings, so the loop is visible. */
+/** Reveals a recorded run step by step at compressed real timings, so the loop is visible. The viewer can skip to the end. */
 function useReplay(steps: AgentStep[] | undefined, key: string | undefined, animate: boolean) {
   const [progress, setProgress] = useState<{ key?: string; count: number }>({ count: 0 });
-  const instant = !animate || (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [skipped, setSkipped] = useState<string>();
+  const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const instant = !animate || reduced || (key !== undefined && skipped === key);
   useEffect(() => {
     if (!steps || instant) return;
     const total = steps.reduce((sum, step) => sum + step.latencyMs, 0) || 1;
@@ -47,12 +49,13 @@ function useReplay(steps: AgentStep[] | undefined, key: string | undefined, anim
       timers.push(setTimeout(() => setProgress({ key, count: index + 1 }), at));
     });
     return () => timers.forEach(clearTimeout);
-    // Replays restart only when a different run arrives.
+    // Replays restart only when a different run arrives or the viewer skips.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
-  if (!steps) return 0;
-  if (instant) return steps.length;
-  return progress.key === key ? Math.min(progress.count, steps.length) : 0;
+  }, [key, instant]);
+  const skip = () => setSkipped(key);
+  if (!steps) return { revealed: 0, skip };
+  if (instant) return { revealed: steps.length, skip };
+  return { revealed: progress.key === key ? Math.min(progress.count, steps.length) : 0, skip };
 }
 
 function StepRow({ step, index, evidence }: { step: AgentStep; index: number; evidence: Map<string, Evidence> }) {
@@ -80,13 +83,13 @@ function StepRow({ step, index, evidence }: { step: AgentStep; index: number; ev
     <div>
       <strong><code>{step.tool}</code><span className="trace-args">({Object.entries(step.args).map(([key, value]) => `${key}: ${value}`).join(", ")})</span></strong>
       <p>{step.evidenceId} · {record?.source}{step.trust === "untrusted" ? " · untrusted content" : ""}{step.status === "not_found" ? " · no record" : ""}</p>
-      {step.flags.map(flag => <p className="trace-flag" key={flag}>⚠ {flag} — quarantined as data</p>)}
+      {step.flags.map(flag => <p className="trace-flag" key={flag}>⚠ {flag}: quarantined as data</p>)}
     </div>
     <em>{step.evidenceId}</em>
   </li>;
 }
 
-function AgentView({ payload, revealed, compact, id, onApprove, onTamper, loading }: { payload: AgentPayload; revealed: number; compact: boolean; id: string; onApprove: () => void; onTamper: (value: boolean) => void; loading: boolean }) {
+function AgentView({ payload, revealed, compact, id, onApprove, onTamper, onSkip, loading }: { payload: AgentPayload; revealed: number; compact: boolean; id: string; onApprove: () => void; onTamper: (value: boolean) => void; onSkip: () => void; loading: boolean }) {
   const { run, gate } = payload;
   const evidence = new Map(run.evidence.map(item => [item.id, item]));
   const procedures = new Map(run.procedures.map(item => [item.id, item]));
@@ -113,6 +116,11 @@ function AgentView({ payload, revealed, compact, id, onApprove, onTamper, loadin
     <div className="lab-body aegis-body">
       <section className="panel" aria-labelledby={`${id}-trace`}>
         <header className="panel-head"><h3 id={`${id}-trace`}>Agent trace</h3><p>{payload.incident.id} · model-planned tool loop</p></header>
+        {!done && <div className="replay-bar">
+          <div className="replay-progress" role="progressbar" aria-label="Replay progress" aria-valuemin={0} aria-valuemax={run.steps.length} aria-valuenow={revealed}><i style={{ transform: `scaleX(${revealed / Math.max(1, run.steps.length)})` }} /></div>
+          <span>Step {revealed} of {run.steps.length}</span>
+          <button type="button" className="button button-ghost button-small" onClick={onSkip}>Skip replay</button>
+        </div>}
         <ol className="trace agent-trace">
           {run.steps.slice(0, revealed).map((step, index) => <StepRow key={index} step={step} index={index + 1} evidence={evidence} />)}
           {!done && <li data-status="waiting" className="trace-pending"><span className="trace-index" aria-hidden="true">…</span><div><strong>{run.steps[revealed]?.kind === "model" ? "Model is planning" : "Calling tool"}</strong><p>Replaying the recorded run</p></div><em>Running</em></li>}
@@ -260,7 +268,7 @@ export function AegisLab({ cases, variant, agent }: { cases: CaseOption[]; varia
   const active = mode === "agent" ? agentRun : baselineRun;
   const payload = agentRun.data;
   const replayKey = payload ? payload.run.runId.replace(/-tampered$/, "") : undefined;
-  const revealed = useReplay(payload?.run.steps, replayKey, payload?.run.source === "recorded");
+  const { revealed, skip } = useReplay(payload?.run.steps, replayKey, payload?.run.source === "recorded");
   const selected = cases.find(option => option.id === caseId) ?? cases[0];
   const validQuestion = question.trim().length >= 3;
   const custom = question.trim() !== defaultQuestion;
@@ -298,16 +306,19 @@ export function AegisLab({ cases, variant, agent }: { cases: CaseOption[]; varia
     <div className="aegis-command">
       {!compact && <div className="field">
         <label htmlFor={`${id}-question`}>Investigation objective</label>
-        <textarea id={`${id}-question`} value={question} rows={2} maxLength={1000} aria-describedby={`${id}-question-help`} onChange={event => setQuestion(event.target.value)} />
-        <p id={`${id}-question-help`}>{mode === "agent" ? (agent.live ? "A custom objective runs the agent live." : "Custom objectives need live mode, which is off on this deployment; the recorded run is shown instead.") : "Keywords in the objective influence which procedure is retrieved."}</p>
+        <textarea id={`${id}-question`} name="objective" value={question} rows={2} maxLength={1000} autoComplete="off" aria-describedby={`${id}-question-help ${id}-question-count`} onChange={event => setQuestion(event.target.value)} />
+        <div className="field-foot">
+          <p id={`${id}-question-help`}>{mode === "agent" ? (agent.live ? "A custom objective runs the agent live." : "Custom objectives need live mode, which is off on this deployment; the recorded run is shown instead.") : "Keywords in the objective influence which procedure is retrieved."}</p>
+          <CharacterCount id={`${id}-question-count`} length={question.length} max={1000} />
+        </div>
       </div>}
       <button type="button" className="button" onClick={investigate} disabled={busy || !validQuestion || (mode === "baseline" && !selected.templated)}>{runLabel}</button>
       {mode === "agent" && agent.live && <label className="check-field"><input type="checkbox" checked={live} onChange={event => setLive(event.target.checked)} /><span>Run live</span></label>}
       <p className="runtime-note">{note}</p>
     </div>
-    <LabError message={active.error} />
+    <LabError message={active.error} onRetry={active.retry} />
     {mode === "agent" && payload?.notice && <p className="lab-notice" role="status">{payload.notice}</p>}
-    {mode === "agent" && payload && <AgentView payload={payload} revealed={revealed} compact={compact} id={id} loading={agentRun.loading}
+    {mode === "agent" && payload && <AgentView payload={payload} revealed={revealed} compact={compact} id={id} loading={agentRun.loading} onSkip={skip}
       onApprove={() => void agentRun.run({ mode: "agent", caseId, question: payload.run.question, runId: payload.run.runId.replace(/-tampered$/, ""), approved: true, tamper: payload.tampered })}
       onTamper={value => void agentRun.run({ mode: "agent", caseId, question: payload.run.question, runId: payload.run.runId.replace(/-tampered$/, ""), tamper: value })} />}
     {mode === "baseline" && baselineRun.data && <BaselineView result={baselineRun.data} compact={compact} id={id} loading={baselineRun.loading} onApprove={() => void baselineRun.run({ mode: "baseline", caseId, question: question.trim(), approved: true })} />}

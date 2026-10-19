@@ -1,25 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
-type LabTab = { slug: string; name: string; tagline: string; accent: string; summary: string; group: string; shows: readonly string[] };
+type LabTab = { slug: string; name: string; tagline: string; summary: string; group: string; shows: readonly string[]; tryThis: readonly string[] };
 
-function groupRanges(labs: LabTab[]) {
-  const ranges: Array<{ group: string; start: number; count: number }> = [];
-  for (let index = 0; index < labs.length; index++) {
-    const last = ranges[ranges.length - 1];
-    if (last && last.group === labs[index]!.group) last.count++;
-    else ranges.push({ group: labs[index]!.group, start: index, count: 1 });
-  }
-  return ranges;
+/** Reads `?lab=<slug>` so a specific lab can be linked to; the server always renders the first tab. */
+function initialFromUrl(labs: LabTab[]) {
+  const slug = new URLSearchParams(window.location.search).get("lab");
+  const index = labs.findIndex(lab => lab.slug === slug);
+  return index;
 }
 
 export default function HomeLabs({ labs, panels }: { labs: LabTab[]; panels: ReactNode[] }) {
   const base = useId();
   const [active, setActive] = useState(0);
   const tabs = useRef<Array<HTMLButtonElement | null>>([]);
-  const groups = groupRanges(labs);
+
+  useEffect(() => {
+    const index = initialFromUrl(labs);
+    // Syncing from the URL after hydration keeps server and client markup identical.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (index > 0) setActive(index);
+  }, [labs]);
+
+  function select(index: number, focus = false) {
+    setActive(index);
+    const tab = tabs.current[index];
+    if (focus) tab?.focus();
+    tab?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    const url = new URL(window.location.href);
+    url.searchParams.set("lab", labs[index]!.slug);
+    window.history.replaceState(window.history.state, "", url);
+  }
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     const last = labs.length - 1;
@@ -31,14 +44,10 @@ export default function HomeLabs({ labs, panels }: { labs: LabTab[]; panels: Rea
     };
     if (!(event.key in moves)) return;
     event.preventDefault();
-    setActive(moves[event.key]!);
-    tabs.current[moves[event.key]!]?.focus();
+    select(moves[event.key]!, true);
   }
 
   return <div className="lab-switcher">
-    <div className="lab-group-captions" aria-hidden="true">
-      {groups.map(group => <p key={group.group} data-span={group.count}>{group.group}</p>)}
-    </div>
     <div className="lab-tabs" role="tablist" aria-label="Interactive labs" onKeyDown={onKeyDown}>
       {labs.map((lab, index) => <button
         key={lab.slug}
@@ -49,11 +58,13 @@ export default function HomeLabs({ labs, panels }: { labs: LabTab[]; panels: Rea
         aria-selected={index === active}
         aria-controls={`${base}-panel-${lab.slug}`}
         tabIndex={index === active ? 0 : -1}
-        className={`lab-tab accent-${lab.accent}`}
-        onClick={() => setActive(index)}
+        className="lab-tab"
+        data-group-start={labs[index - 1]?.group !== lab.group || undefined}
+        onClick={() => select(index)}
       >
-        <span className="lab-tab-index">0{index + 1}</span>
-        <span className="lab-tab-text"><strong>{lab.name}</strong><small>{lab.tagline}</small></span>
+        <span className="lab-tab-group">{lab.group}</span>
+        <strong>{lab.name}</strong>
+        <small>{lab.tagline}</small>
       </button>)}
     </div>
     {labs.map((lab, index) => <section
@@ -62,13 +73,16 @@ export default function HomeLabs({ labs, panels }: { labs: LabTab[]; panels: Rea
       id={`${base}-panel-${lab.slug}`}
       aria-labelledby={`${base}-tab-${lab.slug}`}
       hidden={index !== active}
-      className={`lab-panel accent-${lab.accent}`}
+      className="lab-panel"
     >
-      <p className="lab-shows"><span>What this shows</span>{lab.shows.join(" · ")}</p>
+      <div className="lab-brief">
+        <p className="lab-shows"><span>What this shows</span>{lab.shows.join(" · ")}</p>
+        <ol className="try-this" aria-label="Try this">{lab.tryThis.map(step => <li key={step}>{step}</li>)}</ol>
+      </div>
       {panels[index]}
       <footer className="lab-panel-foot">
         <p>{lab.summary}</p>
-        <Link className="button button-outline" href={`/projects/${lab.slug}`}>Open full lab &amp; case study <span aria-hidden="true">→</span></Link>
+        <Link className="button button-secondary" href={`/projects/${lab.slug}`}>Open full lab &amp; case study <span aria-hidden="true">→</span></Link>
       </footer>
     </section>)}
   </div>;
